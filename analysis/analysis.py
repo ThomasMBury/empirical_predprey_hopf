@@ -5,7 +5,7 @@ Created on Tue Nov 27 12:19:21 2018
 
 @author: Thomas Bury
 
-Analysis of Fussmann chemostat data using pandas
+Analysis of chemostat data from Fussmann et al.
 
 """
 
@@ -17,10 +17,23 @@ import pandas as pd
 # import data
 raw = pd.read_excel('../data/raw_fussmann_2000.xls',header=[1])
 
+# round delta column to 2d.p
+raw['meandelta'] = raw['meandelta'].apply(lambda x: round(x,2))
+
 # index by time (day number) and by meandelta (identifies experiment setting)
-raw2 = raw.set_index(['meandelta','day#'])
+raw.set_index(['meandelta','day#'], inplace=True)
                      
-# 
+# start each time-series from day 0
+raw
+
+
+# delta values in data
+deltaVals = raw.index.levels[0]
+
+
+                      
+                      
+                      
 
 
 
