@@ -14,7 +14,13 @@ import numpy as np
 import pandas as pd
 
 
+# import data
+raw = pd.read_excel('../data/raw_fussmann_2000.xls',header=[1])
 
+# index by time (day number) and by meandelta (identifies experiment setting)
+raw2 = raw.set_index(['meandelta','day#'])
+                     
+# 
 
 
 
