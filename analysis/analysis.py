@@ -54,6 +54,7 @@ for d in deltaVals:
     
 # only keep delta values with over 40 data points (so power spec can be computed)
 deltaValsFilt = series_lengths[ series_lengths>40 ].index
+
                
                
              
@@ -72,7 +73,7 @@ raw['Brachionus'].unstack(level=0).plot(
 # Make dataframe indexed by delta with columns for each EWS
 df_ews_chlor = pd.DataFrame([])
 
-for d in deltaVals:
+for d in deltaValsFilt:
     series = raw.loc[d,'Chlorella']
     # plug series into ews_compute - no rolling window (rw=1)
     df_ews = ews_compute(series,
@@ -80,7 +81,8 @@ for d in deltaVals:
                          smooth = True,
                          band_width = 0.2,
                          ews = ['var','ac','smax','aic','cf','cv'],
-                         lag_times = [1,2]
+                         lag_times = [1,2],
+                         w_cutoff = 0.7
                          )
     # Final entry of dataframe gives overall EWS for time-series (no rollwindow)
     series_ews = df_ews.iloc[-1]
