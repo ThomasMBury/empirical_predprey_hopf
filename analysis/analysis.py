@@ -12,6 +12,13 @@ Analysis of chemostat data from Fussmann et al.
 # import python libraries
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
+# import EWS function
+import sys
+sys.path.append('../../early_warnings')
+from ews_compute import ews_compute
+from ews_spec import pspec_welch, pspec_metrics
 
 
 # import data
@@ -37,9 +44,10 @@ for d in deltaVals:
 
 
 ## index dataframe by meandelta and day#
-raw.set_index(['meandelta','day#'], inplace=True)
+raw.set_index(['meandelta','day#'], inplace=True)            
                
                
+             
 ## Some plots
 
 # Plot all Chlorella trajectories
@@ -50,8 +58,23 @@ raw['Chlorella'].unstack(level=0).plot(
 raw['Brachionus'].unstack(level=0).plot(
         title = 'Brachionus trajectories')
 
+# Do EWS analysis on time-series
 
-                      
+# Chlorella for delta = 1.37
+series = raw.loc[1.37,'Chlorella'] 
+
+df_ews = ews_compute(series,
+                     roll_window = 1,
+                     smooth = True,
+                     band_width = 0.2,
+                     ews = ['var','ac'],
+                     lag_times = [1]
+                     )
+
+# Make plot of EWS for single realisation
+plt.figure(1)
+df_ews[['State variable','Smoothing']].plot(title='Early warning signals')
+              
                       
                       
 
