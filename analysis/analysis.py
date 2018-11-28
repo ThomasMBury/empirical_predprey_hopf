@@ -57,8 +57,9 @@ deltaValsFilt = series_lengths[ series_lengths>40 ].index
 
                
                
-             
-## Some plots
+#–--------------------          
+## Some plots of trajectories
+#-----------------------
 
 # Plot all Chlorella trajectories
 raw['Chlorella'].unstack(level=0).plot(
@@ -68,11 +69,16 @@ raw['Chlorella'].unstack(level=0).plot(
 raw['Brachionus'].unstack(level=0).plot(
         title = 'Brachionus trajectories')
 
-# EWS analysis for Chlorella time-series
+
+#--------------------------
+# Compute EWS
+#------------------------
 
 # Make dataframe indexed by delta with columns for each EWS
 df_ews_chlor = pd.DataFrame([])
+df_ews_brach = pd.DataFrame([])
 
+# Chlorella EWS compute
 for d in deltaValsFilt:
     series = raw.loc[d,'Chlorella']
     # plug series into ews_compute - no rolling window (rw=1)
@@ -90,14 +96,37 @@ for d in deltaValsFilt:
     # Add to dataframe 
     df_ews_chlor = df_ews_chlor.append(series_ews)
     
+# Brachionus EWS compute
+for d in deltaValsFilt:
+    series = raw.loc[d,'Brachionus']
+    # plug series into ews_compute - no rolling window (rw=1)
+    df_ews = ews_compute(series,
+                         roll_window = 1,
+                         smooth = True,
+                         band_width = 0.2,
+                         ews = ['var','ac','smax','aic','cf','cv'],
+                         lag_times = [1,2],
+                         w_cutoff = 0.7
+                         )
+    # Final entry of dataframe gives overall EWS for time-series (no rollwindow)
+    series_ews = df_ews.iloc[-1]
+    series_ews.name = d
+    # Add to dataframe 
+    df_ews_brach = df_ews_brach.append(series_ews)   
     
-# Make plot of EWS for single realisation
+
+#----------------
+## EWS plots
+#----------------
+    
+    
+# Make plot of smoothing
 plt.figure(1)
 df_ews[['State variable','Smoothing']].plot(title='Early warning signals')
-              
-# Take final entry of EWS dataframe (using rolling window = length of series)
-df_ews.iloc[-1]                 
-
+                             
+# Variance plot
+plt.figure(2)
+df_ews_chlor[]
 
 
 
