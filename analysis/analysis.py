@@ -20,35 +20,35 @@ raw = pd.read_excel('../data/raw_fussmann_2000.xls',header=[1])
 # round delta column to 2d.p
 raw['meandelta'] = raw['meandelta'].apply(lambda x: round(x,2))
 
-# index by meandelta (identifies experiment setting)
-raw.set_index(['meandelta','day#'], inplace=True)
 
-# shift day# to start at 0
-
+## shift day# to start at 0
 # function to take list and subtract minimum element
 def zero_shift(array):
     return array-min(array)
 
+# unique delta values
+deltaVals = raw['meandelta'].unique()
+
 # loop through delta values
-deltaVals = raw.index.levels[0]
-for d in deltaVals:
-    # extract data for specific delta value
-    df_temp = raw.loc[d]
-    # remove time as index
-    df_temp.reset_index(inplace=True)
-    # shift time column to start at zero
-    df_temp['day#'].apply(lambda x: x-min(df_temp['day#']))
-    # put back in dataframe
-    raw.loc[d] = df_temp
+for d in deltaVals: 
+    # shift time values to start at 0
+    raw.loc[ raw['meandelta']==d,'day#'] = zero_shift(
+            raw.loc[ raw['meandelta']==d,'day#']) 
 
 
-           
-         
+## index dataframe by meandelta and day#
+raw.set_index(['meandelta','day#'], inplace=True)
+               
+               
+## Some plots
 
+# Plot all Chlorella trajectories
+raw['Chlorella'].unstack(level=0).plot(
+        title = 'Chlorella trajectories')
 
-
-# delta values in data
-
+# Plot all Brachionus trajectories
+raw['Brachionus'].unstack(level=0).plot(
+        title = 'Brachionus trajectories')
 
 
                       
