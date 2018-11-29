@@ -115,6 +115,14 @@ for d in deltaValsFilt:
     df_ews_brach = df_ews_brach.append(series_ews)   
     
 
+#--------------------------
+## Compute power spectrum functions
+#---------------------------
+    
+
+
+
+
 
 
 
@@ -126,20 +134,9 @@ for d in deltaValsFilt:
     
     
 # Make plot of smoothing
-plt.figure(4)
 df_ews[['State variable','Smoothing']].plot(title='Early warning signals')
-                             
-# Variance plot
-plt.figure(5)
-df_ews_chlor['Variance'].plot(title = 'Variance')
-df_ews_brach['Variance'].plot(secondary_y=True)
 
-# Variance plot
-plt.figure(5)
-df_ews_chlor['Variance'].plot(title = 'Variance')
-df_ews_brach['Variance'].plot(secondary_y=True)
-
-
+# Plot of EWS metrics
 fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
 df_ews_chlor[['Variance']].plot(ax=axes[0],title='Early warning signals')
 df_ews_brach[['Variance']].plot(ax=axes[0],secondary_y=True)
