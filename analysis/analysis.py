@@ -21,6 +21,25 @@ from ews_compute import ews_compute
 from ews_spec import pspec_welch, pspec_metrics
 
 
+#-----------------------
+# Parameters
+#–-----------------------
+
+# EWS computation parmaeters
+band_width = 0.5 # band width of Gaussian smoothing
+ham_length = 40 # length of Hamming window
+w_cutoff = 0.7 # cutoff of higher frequencies
+ews = ['var','ac','smax','aic','cf','cv'] # EWS to compute
+lag_times = [1,2] # lag times for autocorrelation computation
+
+
+
+
+
+#------------------
+## Data curation
+#-------------------
+
 # import data
 raw = pd.read_excel('../data/raw_fussmann_2000.xls',header=[1])
 
@@ -58,7 +77,7 @@ deltaValsFilt = series_lengths[ series_lengths>40 ].index
                
                
 #–--------------------          
-## Some plots of trajectories
+## Plot of trajctories
 #-----------------------
 
 # Plot all Chlorella trajectories
@@ -86,10 +105,10 @@ for d in deltaValsFilt:
     df_temp = ews_compute(series,
                          roll_window = 1,
                          smooth = True,
-                         band_width = 0.5,
-                         ews = ['var','ac','smax','aic','cf','cv'],
-                         lag_times = [1,2],
-                         w_cutoff = 0.7
+                         band_width = band_width,
+                         ews = ews,
+                         lag_times = lag_times,
+                         w_cutoff = w_cutoff
                          )
     # include a column in the dataframe for delta value
     df_temp['meandelta'] = d*np.ones([len(series)])
@@ -112,10 +131,10 @@ for d in deltaValsFilt:
     df_temp = ews_compute(series,
                          roll_window = 1,
                          smooth = True,
-                         band_width = 0.5,
-                         ews = ['var','ac','smax','aic','cf','cv'],
-                         lag_times = [1,2],
-                         w_cutoff = 0.7
+                         band_width = band_width,
+                         ews = ews,
+                         lag_times = lag_times,
+                         w_cutoff = w_cutoff
                          )
     # include a column in the dataframe for delta value
     df_temp['meandelta'] = d*np.ones([len(series)])
@@ -133,33 +152,33 @@ df_ews_brach = pd.concat(appended_ews).set_index('meandelta',append=True).reorde
 ## Compute power spectrum functions
 #---------------------------
 
-## Use pspec_welch to compute power spectrum
-#pspec=pspec_welch(df_ews.loc[plot_num][t_pspec-rw*max(df_sims_filt.index):t_pspec]['Residuals'], dt2, ham_length=ham_length, w_cutoff=1)
-#
-## Execute the function pspec_metrics to compute the AIC weights and fitting parameters
-#spec_ews = pspec_metrics(pspec, ews=['smax', 'cf', 'aic', 'aic_params'])
-## Define the power spectrum models
-#def fit_fold(w,sigma,lam):
-#    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
-#        
-#def fit_hopf(w,sigma,mu,w0):
-#    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
-#        
-#def fit_null(w,sigma):
-#    return sigma**2/(2*np.pi)* w**0
-#
-## Make plot
-#w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
-#fig2 = plt.figure(2)
-#pspec.plot(label='Measured')
-#plt.plot(w_vals, fit_fold(w_vals, spec_ews['Params fold']['sigma'], spec_ews['Params fold']['lam']),label='Fold (AIC='+str(round(spec_ews['AIC fold'],2))+')')
-#plt.plot(w_vals, fit_hopf(w_vals, spec_ews['Params hopf']['sigma'], spec_ews['Params hopf']['mu'], spec_ews['Params hopf']['w0']),label='Hopf (AIC='+str(round(spec_ews['AIC hopf'],2))+')')
-#plt.plot(w_vals, fit_null(w_vals, spec_ews['Params null']['sigma']),label='Null (AIC='+str(round(spec_ews['AIC null'],2))+')')
-#plt.ylabel('Power')
-#plt.legend()
-#plt.title('Power spectrum and fits at time t='+str(t_pspec))
-#
-#
+# Use pspec_welch to compute power spectrum for some delta (for now)
+pspec=pspec_welch(df_ews_chlor[1.37,'Residuals'], 1, ham_length=ham_length, w_cutoff=w_cutoff)
+
+# Execute the function pspec_metrics to compute the AIC weights and fitting parameters
+spec_ews = pspec_metrics(pspec, ews=['smax', 'cf', 'aic', 'aic_params'])
+# Define the power spectrum models
+def fit_fold(w,sigma,lam):
+    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
+        
+def fit_hopf(w,sigma,mu,w0):
+    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
+        
+def fit_null(w,sigma):
+    return sigma**2/(2*np.pi)* w**0
+
+# Make plot
+w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
+fig2 = plt.figure(2)
+pspec.plot(label='Measured')
+plt.plot(w_vals, fit_fold(w_vals, spec_ews['Params fold']['sigma'], spec_ews['Params fold']['lam']),label='Fold (AIC='+str(round(spec_ews['AIC fold'],2))+')')
+plt.plot(w_vals, fit_hopf(w_vals, spec_ews['Params hopf']['sigma'], spec_ews['Params hopf']['mu'], spec_ews['Params hopf']['w0']),label='Hopf (AIC='+str(round(spec_ews['AIC hopf'],2))+')')
+plt.plot(w_vals, fit_null(w_vals, spec_ews['Params null']['sigma']),label='Null (AIC='+str(round(spec_ews['AIC null'],2))+')')
+plt.ylabel('Power')
+plt.legend()
+plt.title('Power spectrum and fits at time t='+str(t_pspec))
+
+
 
 
 
@@ -168,7 +187,7 @@ df_ews_brach = pd.concat(appended_ews).set_index('meandelta',append=True).reorde
 
 
 #----------------
-## Plots of EWS for each delta
+## Plots of EWS against delta value
 #----------------
         
 # Make plot of smoothing for some delta value
