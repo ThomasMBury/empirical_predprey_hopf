@@ -74,15 +74,16 @@ raw['Brachionus'].unstack(level=0).plot(
 # Compute EWS
 #------------------------
 
-# Make dataframe indexed by delta with columns for each EWS
-df_ews_chlor = pd.DataFrame([])
-df_ews_brach = pd.DataFrame([])
+## Chlorella EWS
 
-# Chlorella EWS compute
+# Set up a list to store output dataframes of EWS for each delta
+appended_ews = []
+
+# Loop through delta values
 for d in deltaValsFilt:
     series = raw.loc[d,'Chlorella']
     # plug series into ews_compute - no rolling window (rw=1)
-    df_ews = ews_compute(series,
+    df_temp = ews_compute(series,
                          roll_window = 1,
                          smooth = True,
                          band_width = 0.5,
@@ -90,37 +91,75 @@ for d in deltaValsFilt:
                          lag_times = [1,2],
                          w_cutoff = 0.7
                          )
-    # Final entry of dataframe gives overall EWS for time-series (no rollwindow)
-    series_ews = df_ews.iloc[-1]
-    series_ews.name = d
-    # Add to dataframe 
-    df_ews_chlor = df_ews_chlor.append(series_ews)
+    # include a column in the dataframe for delta value
+    df_temp['meandelta'] = d*np.ones([len(series)])
+    # add DataFrame to list
+    appended_ews.append(df_temp)
     
-# Brachionus EWS compute
+# concatenate EWS DataFrames - use delta value and time as indices
+df_ews_chlor = pd.concat(appended_ews).set_index('meandelta',append=True).reorder_levels([1,0])
+
+
+## Brachionus EWS
+
+# Set up a list to store output dataframes of EWS for each delta
+appended_ews = []
+
+# Loop through delta values
 for d in deltaValsFilt:
     series = raw.loc[d,'Brachionus']
     # plug series into ews_compute - no rolling window (rw=1)
-    df_ews = ews_compute(series,
+    df_temp = ews_compute(series,
                          roll_window = 1,
                          smooth = True,
-                         band_width = 0.2,
+                         band_width = 0.5,
                          ews = ['var','ac','smax','aic','cf','cv'],
                          lag_times = [1,2],
                          w_cutoff = 0.7
                          )
-    # Final entry of dataframe gives overall EWS for time-series (no rollwindow)
-    series_ews = df_ews.iloc[-1]
-    series_ews.name = d
-    # Add to dataframe 
-    df_ews_brach = df_ews_brach.append(series_ews)   
+    # include a column in the dataframe for delta value
+    df_temp['meandelta'] = d*np.ones([len(series)])
+    # add DataFrame to list
+    appended_ews.append(df_temp)
     
+# concatenate EWS DataFrames - use delta value and time as indices
+df_ews_brach = pd.concat(appended_ews).set_index('meandelta',append=True).reorder_levels([1,0])
+
+
+
+
 
 #--------------------------
 ## Compute power spectrum functions
 #---------------------------
-    
 
-
+## Use pspec_welch to compute power spectrum
+#pspec=pspec_welch(df_ews.loc[plot_num][t_pspec-rw*max(df_sims_filt.index):t_pspec]['Residuals'], dt2, ham_length=ham_length, w_cutoff=1)
+#
+## Execute the function pspec_metrics to compute the AIC weights and fitting parameters
+#spec_ews = pspec_metrics(pspec, ews=['smax', 'cf', 'aic', 'aic_params'])
+## Define the power spectrum models
+#def fit_fold(w,sigma,lam):
+#    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
+#        
+#def fit_hopf(w,sigma,mu,w0):
+#    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
+#        
+#def fit_null(w,sigma):
+#    return sigma**2/(2*np.pi)* w**0
+#
+## Make plot
+#w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
+#fig2 = plt.figure(2)
+#pspec.plot(label='Measured')
+#plt.plot(w_vals, fit_fold(w_vals, spec_ews['Params fold']['sigma'], spec_ews['Params fold']['lam']),label='Fold (AIC='+str(round(spec_ews['AIC fold'],2))+')')
+#plt.plot(w_vals, fit_hopf(w_vals, spec_ews['Params hopf']['sigma'], spec_ews['Params hopf']['mu'], spec_ews['Params hopf']['w0']),label='Hopf (AIC='+str(round(spec_ews['AIC hopf'],2))+')')
+#plt.plot(w_vals, fit_null(w_vals, spec_ews['Params null']['sigma']),label='Null (AIC='+str(round(spec_ews['AIC null'],2))+')')
+#plt.ylabel('Power')
+#plt.legend()
+#plt.title('Power spectrum and fits at time t='+str(t_pspec))
+#
+#
 
 
 
@@ -129,25 +168,38 @@ for d in deltaValsFilt:
 
 
 #----------------
-## EWS plots
+## Plots of EWS for each delta
 #----------------
+        
+# Make plot of smoothing for some delta value
+df_ews_chlor.loc[1.37,['State variable','Smoothing']].plot(title='Early warning signals')
+
+# Create dataframe with summary EWS (final entry in time of df_ews)
+ews_summary_chlor = pd.DataFrame([])
+for d in deltaValsFilt:
+    series_temp = df_ews_chlor.loc[d].iloc[-1]
+    series_temp.name = d
+    ews_summary_chlor = ews_summary_chlor.append(series_temp)
     
-    
-# Make plot of smoothing
-df_ews[['State variable','Smoothing']].plot(title='Early warning signals')
+ews_summary_brach = pd.DataFrame([])
+for d in deltaValsFilt:
+    series_temp = df_ews_brach.loc[d].iloc[-1]
+    series_temp.name = d
+    ews_summary_brach = ews_summary_brach.append(series_temp)
+
 
 # Plot of EWS metrics
 fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
-df_ews_chlor[['Variance']].plot(ax=axes[0],title='Early warning signals')
-df_ews_brach[['Variance']].plot(ax=axes[0],secondary_y=True)
-df_ews_chlor[['Coefficient of variation']].plot(ax=axes[1])
-df_ews_brach[['Coefficient of variation']].plot(ax=axes[1],secondary_y=True)
-df_ews_chlor[['Lag-1 AC']].plot(ax=axes[2])
-df_ews_brach[['Lag-1 AC']].plot(ax=axes[2],secondary_y=True)
-df_ews_chlor[['Smax']].plot(ax=axes[3])
-df_ews_brach[['Smax']].plot(ax=axes[3],secondary_y=True)
-df_ews_chlor[['AIC hopf']].plot(ax=axes[4])
-df_ews_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
+ews_summary_chlor[['Variance']].plot(ax=axes[0],title='Early warning signals')
+ews_summary_brach[['Variance']].plot(ax=axes[0],secondary_y=True)
+ews_summary_chlor[['Coefficient of variation']].plot(ax=axes[1])
+ews_summary_brach[['Coefficient of variation']].plot(ax=axes[1],secondary_y=True)
+ews_summary_chlor[['Lag-1 AC']].plot(ax=axes[2])
+ews_summary_brach[['Lag-1 AC']].plot(ax=axes[2],secondary_y=True)
+ews_summary_chlor[['Smax']].plot(ax=axes[3])
+ews_summary_brach[['Smax']].plot(ax=axes[3],secondary_y=True)
+ews_summary_chlor[['AIC hopf']].plot(ax=axes[4])
+ews_summary_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 
 
 
