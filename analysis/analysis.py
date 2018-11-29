@@ -13,6 +13,7 @@ Analysis of chemostat data from Fussmann et al.
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # import EWS function
 import sys
@@ -187,6 +188,16 @@ for d in deltaValsFilt:
 #  Concatenate dataframes of power spectra and set index as delta value and w
 df_pspec_brach = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
 
+
+
+## Grid of plots of power spectra
+
+# remove indexing for plotting
+plotdf_pspec_chlor = df_pspec_chlor.reset_index()
+plotdf_pspec_brach = df_pspec_brach.reset_index()
+
+# set up grid for plots
+g = sns.FacetGrid(plotdf_pspec_chlor, col='meandelta', col_wrap=3)
 
 
 ## Plot of single power spectrum along with its nonlinear fits
