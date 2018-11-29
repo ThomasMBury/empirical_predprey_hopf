@@ -85,7 +85,7 @@ for d in deltaValsFilt:
     df_ews = ews_compute(series,
                          roll_window = 1,
                          smooth = True,
-                         band_width = 0.2,
+                         band_width = 0.5,
                          ews = ['var','ac','smax','aic','cf','cv'],
                          lag_times = [1,2],
                          w_cutoff = 0.7
@@ -115,22 +115,42 @@ for d in deltaValsFilt:
     df_ews_brach = df_ews_brach.append(series_ews)   
     
 
+
+
+
+
+
 #----------------
 ## EWS plots
 #----------------
     
     
 # Make plot of smoothing
-plt.figure(1)
+plt.figure(4)
 df_ews[['State variable','Smoothing']].plot(title='Early warning signals')
                              
 # Variance plot
-plt.figure(2)
-df_ews_chlor[]
+plt.figure(5)
+df_ews_chlor['Variance'].plot(title = 'Variance')
+df_ews_brach['Variance'].plot(secondary_y=True)
+
+# Variance plot
+plt.figure(5)
+df_ews_chlor['Variance'].plot(title = 'Variance')
+df_ews_brach['Variance'].plot(secondary_y=True)
 
 
-
-
+fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
+df_ews_chlor[['Variance']].plot(ax=axes[0],title='Early warning signals')
+df_ews_brach[['Variance']].plot(ax=axes[0],secondary_y=True)
+df_ews_chlor[['Coefficient of variation']].plot(ax=axes[1])
+df_ews_brach[['Coefficient of variation']].plot(ax=axes[1],secondary_y=True)
+df_ews_chlor[['Lag-1 AC']].plot(ax=axes[2])
+df_ews_brach[['Lag-1 AC']].plot(ax=axes[2],secondary_y=True)
+df_ews_chlor[['Smax']].plot(ax=axes[3])
+df_ews_brach[['Smax']].plot(ax=axes[3],secondary_y=True)
+df_ews_chlor[['AIC hopf']].plot(ax=axes[4])
+df_ews_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 
 
 
