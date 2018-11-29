@@ -28,7 +28,7 @@ from ews_spec import pspec_welch, pspec_metrics
 # EWS computation parmaeters
 band_width = 0.5 # band width of Gaussian smoothing
 ham_length = 40 # length of Hamming window
-w_cutoff = 0.7 # cutoff of higher frequencies
+w_cutoff = 0.5 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic','cf','cv'] # EWS to compute
 lag_times = [1,2] # lag times for autocorrelation computation
 
@@ -72,7 +72,7 @@ for d in deltaVals:
     series_lengths.loc[d] = len(raw.loc[d])
     
 # only keep delta values with over 40 data points (so power spec can be computed)
-deltaValsFilt = series_lengths[ series_lengths>40 ].index
+deltaValsFilt = series_lengths[ series_lengths > 40 ].index
 
                
                
@@ -152,32 +152,68 @@ df_ews_brach = pd.concat(appended_ews).set_index('meandelta',append=True).reorde
 ## Compute power spectrum functions
 #---------------------------
 
-# Use pspec_welch to compute power spectrum for some delta (for now)
-pspec=pspec_welch(df_ews_chlor[1.37,'Residuals'], 1, ham_length=ham_length, w_cutoff=w_cutoff)
+## Chlorella pspec
 
-# Execute the function pspec_metrics to compute the AIC weights and fitting parameters
-spec_ews = pspec_metrics(pspec, ews=['smax', 'cf', 'aic', 'aic_params'])
-# Define the power spectrum models
-def fit_fold(w,sigma,lam):
-    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
-        
-def fit_hopf(w,sigma,mu,w0):
-    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
-        
-def fit_null(w,sigma):
-    return sigma**2/(2*np.pi)* w**0
+# Append power spectrum for each delta value into appeded_pspec
+appended_pspec = []
+for d in deltaValsFilt:
+    pspec_temp = pspec_welch(df_ews_chlor.loc[d,'Residuals'].values,
+                             1, ham_length=ham_length, w_cutoff=w_cutoff)
+    # turn into dataframe and reset index
+    pspec_temp = pspec_temp.to_frame().reset_index()
+    # add a column with delta value
+    pspec_temp['meandelta'] = d*np.ones(len(pspec_temp))
+    # add to appeded ews
+    appended_pspec.append(pspec_temp)
+    
+#  Concatenate dataframes of power spectra and set index as delta value and w
+df_pspec_chlor = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
 
-# Make plot
-w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
-fig2 = plt.figure(2)
-pspec.plot(label='Measured')
-plt.plot(w_vals, fit_fold(w_vals, spec_ews['Params fold']['sigma'], spec_ews['Params fold']['lam']),label='Fold (AIC='+str(round(spec_ews['AIC fold'],2))+')')
-plt.plot(w_vals, fit_hopf(w_vals, spec_ews['Params hopf']['sigma'], spec_ews['Params hopf']['mu'], spec_ews['Params hopf']['w0']),label='Hopf (AIC='+str(round(spec_ews['AIC hopf'],2))+')')
-plt.plot(w_vals, fit_null(w_vals, spec_ews['Params null']['sigma']),label='Null (AIC='+str(round(spec_ews['AIC null'],2))+')')
-plt.ylabel('Power')
-plt.legend()
-plt.title('Power spectrum and fits at time t='+str(t_pspec))
 
+## Brachionus pspec
+
+# Append power spectrum for each delta value into appeded_pspec
+appended_pspec = []
+for d in deltaValsFilt:
+    pspec_temp = pspec_welch(df_ews_brach.loc[d,'Residuals'].values,
+                             1, ham_length=ham_length, w_cutoff=w_cutoff)
+    # turn into dataframe and reset index
+    pspec_temp = pspec_temp.to_frame().reset_index()
+    # add a column with delta value
+    pspec_temp['meandelta'] = d*np.ones(len(pspec_temp))
+    # add to appeded ews
+    appended_pspec.append(pspec_temp)
+  
+#  Concatenate dataframes of power spectra and set index as delta value and w
+df_pspec_brach = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
+
+
+
+## Plot of single power spectrum along with its nonlinear fits
+#
+## Execute the function pspec_metrics to compute the AIC weights and fitting parameters
+#spec_ews = pspec_metrics(pspec, ews=['smax', 'cf', 'aic', 'aic_params'])
+## Define the power spectrum models
+#def fit_fold(w,sigma,lam):
+#    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
+#        
+#def fit_hopf(w,sigma,mu,w0):
+#    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
+#        
+#def fit_null(w,sigma):
+#    return sigma**2/(2*np.pi)* w**0
+#
+## Make plot
+#w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
+#fig2 = plt.figure(2)
+#pspec.plot(label='Measured')
+#plt.plot(w_vals, fit_fold(w_vals, spec_ews['Params fold']['sigma'], spec_ews['Params fold']['lam']),label='Fold (AIC='+str(round(spec_ews['AIC fold'],2))+')')
+#plt.plot(w_vals, fit_hopf(w_vals, spec_ews['Params hopf']['sigma'], spec_ews['Params hopf']['mu'], spec_ews['Params hopf']['w0']),label='Hopf (AIC='+str(round(spec_ews['AIC hopf'],2))+')')
+#plt.plot(w_vals, fit_null(w_vals, spec_ews['Params null']['sigma']),label='Null (AIC='+str(round(spec_ews['AIC null'],2))+')')
+#plt.ylabel('Power')
+#plt.legend()
+#plt.title('Power spectrum and fits at time t='+str(t_pspec))
+#
 
 
 
