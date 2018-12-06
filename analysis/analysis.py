@@ -315,9 +315,10 @@ append_df = []
 
 
 # Frequency values
-wVals = np.arange(min(plotdf_pspec_chlor['Frequency']), 
-                  max(plotdf_pspec_chlor['Frequency']),
-                  0.01)
+#wVals = np.arange(min(plotdf_pspec_chlor['Frequency']), 
+#                  max(plotdf_pspec_chlor['Frequency']),
+#                  0.01)
+wVals = df_pspec_chlor.index.levels[1]
 
 # Loop over delta values
 for d in deltaValsFilt:
@@ -332,8 +333,7 @@ for d in deltaValsFilt:
                  df_spec_metrics.loc[species ,d]['Params hopf']['w0'])
         # Null fit values
         pspec_null = fit_null(wVals, df_spec_metrics.loc[species ,d]['Params null']['sigma'])
-
-
+        
         # Create dictionary for dataframe
         dic = {'Species': [species for i in range(len(wVals))],
                           'Delta': d*np.ones(len(wVals)),
@@ -344,7 +344,9 @@ for d in deltaValsFilt:
                           }
     
         df_temp = pd.DataFrame(data=dic)
-   
+        
+        # Include column for empirical observations
+        
         # Add to appended list of dataframes to append
         append_df.append(df_temp)
 
@@ -363,6 +365,9 @@ g = sns.FacetGrid(df_pspec_fits[df_pspec_fits['Species']=='Chlor'],
 g.map(plt.plot, 'Frequency', 'Fold fit')
 g.map(plt.plot, 'Frequency', 'Hopf fit', color='r')
 g.map(plt.plot, 'Frequency', 'Null fit', color='g')
+
+
+
 # Change y labels
 axes = g.axes
 for ax in axes[::3]:
