@@ -206,13 +206,26 @@ df_pspec_brach = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
 
 
 #--------------------------------
-## Plots of power spectra
+## Grid plots of power spectra
 #--------------------------------
 
 
 # Remove indexing for plotting
 plotdf_pspec_chlor = df_pspec_chlor.reset_index()
 plotdf_pspec_brach = df_pspec_brach.reset_index()
+
+# Plot properties
+small_size = 8
+med_size = 10
+big_size = 12
+plt.rc('font', size=small_size)          # controls default text sizes
+plt.rc('axes', titlesize=med_size)     # fontsize of the axes title
+plt.rc('axes', labelsize=med_size)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=small_size)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=small_size)    # fontsize of the tick labels
+plt.rc('legend', fontsize=small_size)    # legend fontsize
+plt.rc('figure', titlesize=med_size)  # fontsize of the figure title
+
 
 # Chlorella plot grid
 plot_pspec_chlor = sns.FacetGrid(plotdf_pspec_chlor, 
@@ -223,8 +236,18 @@ plot_pspec_chlor = sns.FacetGrid(plotdf_pspec_chlor,
                   size=1.8
                   )
 plot_pspec_chlor = plot_pspec_chlor.map(plt.plot, 'Frequency', 'Power spectrum')
+# Change y labels
+axes = plot_pspec_chlor.axes
+for ax in axes[::3]:
+    ax.set_ylabel('Power')
+# Change titles
+i=0
+for ax in axes:
+    ax.set_title('Delta = '+str(deltaValsFilt[i]))
+    i=i+1
 
-# Brachionus plot grid
+
+## Brachionus plot grid
 plot_pspec_brach = sns.FacetGrid(plotdf_pspec_brach, 
                   col='meandelta',
                   col_wrap=3,
@@ -233,7 +256,15 @@ plot_pspec_brach = sns.FacetGrid(plotdf_pspec_brach,
                   size=1.8
                   )
 plot_pspec_brach = plot_pspec_brach.map(plt.plot, 'Frequency', 'Power spectrum')
-
+# Change y labels
+axes = plot_pspec_brach.axes
+for ax in axes[::3]:
+    ax.set_ylabel('Power')
+# Change titles
+i=0
+for ax in axes:
+    ax.set_title('Delta = '+str(deltaValsFilt[i]))
+    i=i+1
 
 
 ## Plot nonlinear fits
