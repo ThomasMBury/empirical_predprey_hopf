@@ -27,10 +27,10 @@ from ews_spec import pspec_welch, pspec_metrics
 #–-----------------------
 
 # EWS computation parmaeters
-band_width = 0.5 # band width of Gaussian smoothing
+band_width = 0.2 # band width of Gaussian smoothing
 ham_length = 40 # length of Hamming window
 w_cutoff = 0.5 # cutoff of higher frequencies
-ews = ['var','ac','smax','aic','cf','cv'] # EWS to compute
+ews = ['var','ac','smax','aic','aic_params','cf','cv'] # EWS to compute
 lag_times = [1,2] # lag times for autocorrelation computation
 
 
@@ -78,16 +78,16 @@ deltaValsFilt = series_lengths[ series_lengths > 40 ].index
                
                
 #–--------------------          
-## Plot of trajctories
+## Plot of all trajctories
 #-----------------------
 
-# Plot all Chlorella trajectories
-raw['Chlorella'].unstack(level=0).plot(
-        title = 'Chlorella trajectories')
-
-# Plot all Brachionus trajectories
-raw['Brachionus'].unstack(level=0).plot(
-        title = 'Brachionus trajectories')
+## Plot all Chlorella trajectories
+#raw['Chlorella'].unstack(level=0).plot(
+#        title = 'Chlorella trajectories')
+#
+## Plot all Brachionus trajectories
+#raw['Brachionus'].unstack(level=0).plot(
+#        title = 'Brachionus trajectories')
 
 
 #--------------------------
@@ -147,6 +147,21 @@ df_ews_brach = pd.concat(appended_ews).set_index('meandelta',append=True).reorde
 
 
 
+## Create dataframes with summary EWS (final entry in time of df_ews)
+ews_summary_chlor = pd.DataFrame([])
+for d in deltaValsFilt:
+    series_temp = df_ews_chlor.loc[d].iloc[-1]
+    series_temp.name = d
+    ews_summary_chlor = ews_summary_chlor.append(series_temp)
+    
+ews_summary_brach = pd.DataFrame([])
+for d in deltaValsFilt:
+    series_temp = df_ews_brach.loc[d].iloc[-1]
+    series_temp.name = d
+    ews_summary_brach = ews_summary_brach.append(series_temp)
+
+
+
 
 
 #--------------------------
@@ -190,29 +205,52 @@ df_pspec_brach = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
 
 
 
-## Grid of plots of power spectra
+#--------------------------------
+## Plots of power spectra
+#--------------------------------
 
-# remove indexing for plotting
+
+# Remove indexing for plotting
 plotdf_pspec_chlor = df_pspec_chlor.reset_index()
 plotdf_pspec_brach = df_pspec_brach.reset_index()
 
-# set up grid for plots
-g = sns.FacetGrid(plotdf_pspec_chlor, col='meandelta', col_wrap=3)
+# Chlorella plot grid
+plot_pspec_chlor = sns.FacetGrid(plotdf_pspec_chlor, 
+                  col='meandelta',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  size=1.8
+                  )
+plot_pspec_chlor = plot_pspec_chlor.map(plt.plot, 'Frequency', 'Power spectrum')
+
+# Brachionus plot grid
+plot_pspec_brach = sns.FacetGrid(plotdf_pspec_brach, 
+                  col='meandelta',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  size=1.8
+                  )
+plot_pspec_brach = plot_pspec_brach.map(plt.plot, 'Frequency', 'Power spectrum')
 
 
-## Plot of single power spectrum along with its nonlinear fits
-#
-## Execute the function pspec_metrics to compute the AIC weights and fitting parameters
-#spec_ews = pspec_metrics(pspec, ews=['smax', 'cf', 'aic', 'aic_params'])
-## Define the power spectrum models
-#def fit_fold(w,sigma,lam):
-#    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
-#        
-#def fit_hopf(w,sigma,mu,w0):
-#    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
-#        
-#def fit_null(w,sigma):
-#    return sigma**2/(2*np.pi)* w**0
+
+## Plot nonlinear fits
+
+# Define the power spectrum models
+def fit_fold(w,sigma,lam):
+    return (sigma**2 / (2*np.pi))*(1/(w**2+lam**2))
+        
+def fit_hopf(w,sigma,mu,w0):
+    return (sigma**2/(4*np.pi))*(1/((w+w0)**2+mu**2)+1/((w-w0)**2 +mu**2))
+        
+def fit_null(w,sigma):
+    return sigma**2/(2*np.pi)* w**0
+
+# Get parameters from ews dataframes
+    
+
 #
 ## Make plot
 #w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
@@ -228,31 +266,12 @@ g = sns.FacetGrid(plotdf_pspec_chlor, col='meandelta', col_wrap=3)
 
 
 
-
-
-
-
-
 #----------------
 ## Plots of EWS against delta value
 #----------------
         
 # Make plot of smoothing for some delta value
 df_ews_chlor.loc[1.37,['State variable','Smoothing']].plot(title='Early warning signals')
-
-# Create dataframe with summary EWS (final entry in time of df_ews)
-ews_summary_chlor = pd.DataFrame([])
-for d in deltaValsFilt:
-    series_temp = df_ews_chlor.loc[d].iloc[-1]
-    series_temp.name = d
-    ews_summary_chlor = ews_summary_chlor.append(series_temp)
-    
-ews_summary_brach = pd.DataFrame([])
-for d in deltaValsFilt:
-    series_temp = df_ews_brach.loc[d].iloc[-1]
-    series_temp.name = d
-    ews_summary_brach = ews_summary_brach.append(series_temp)
-
 
 # Plot of EWS metrics
 fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
