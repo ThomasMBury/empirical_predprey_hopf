@@ -323,7 +323,7 @@ append_df = []
 wVals = df_pspec_chlor.index.levels[1]
 
 # Frequency values to use when plotting nonlinear fits
-wVals_dense = np.linspace(min(wVals), max(wVals), 2*len(wVals))
+wVals_dense = np.linspace(min(wVals), max(wVals), 10*len(wVals))
 #wVals = df_pspec_chlor.index.levels[1]
 
 # Loop over delta values
