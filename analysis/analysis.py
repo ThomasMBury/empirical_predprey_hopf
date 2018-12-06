@@ -47,6 +47,8 @@ raw = pd.read_excel('../data/raw_fussmann_2000.xls',header=[1])
 # round delta column to 2d.p
 raw['meandelta'] = raw['meandelta'].apply(lambda x: round(x,2))
 
+# rename delta column
+raw.rename(columns={'meandelta':'Delta'}, inplace=True)
 
 ## shift day# to start at 0
 # function to take list and subtract minimum element
@@ -54,21 +56,21 @@ def zero_shift(array):
     return array-min(array)
 
 # unique delta values
-deltaVals = raw['meandelta'].unique()
+deltaVals = raw['Delta'].unique()
 
 # loop through delta values
 for d in deltaVals: 
     # shift time values to start at 0
-    raw.loc[ raw['meandelta']==d,'day#'] = zero_shift(
-            raw.loc[ raw['meandelta']==d,'day#']) 
+    raw.loc[ raw['Delta']==d,'day#'] = zero_shift(
+            raw.loc[ raw['Delta']==d,'day#']) 
 
 
-## index dataframe by meandelta and day#
-raw.set_index(['meandelta','day#'], inplace=True)            
+## index dataframe by Delta and day#
+raw.set_index(['Delta','day#'], inplace=True)            
 
 # compute number of data points for each value of delta
 series_lengths=pd.Series(index=deltaVals)
-series_lengths.index.name= 'meandelta'
+series_lengths.index.name= 'Delta'
 for d in deltaVals:
     series_lengths.loc[d] = len(raw.loc[d])
     
@@ -112,12 +114,12 @@ for d in deltaValsFilt:
                          w_cutoff = w_cutoff
                          )
     # include a column in the dataframe for delta value
-    df_temp['meandelta'] = d*np.ones([len(series)])
+    df_temp['Delta'] = d*np.ones([len(series)])
     # add DataFrame to list
     appended_ews.append(df_temp)
     
 # concatenate EWS DataFrames - use delta value and time as indices
-df_ews_chlor = pd.concat(appended_ews).set_index('meandelta',append=True).reorder_levels([1,0])
+df_ews_chlor = pd.concat(appended_ews).set_index('Delta',append=True).reorder_levels([1,0])
 
 
 ## Brachionus EWS
@@ -138,12 +140,12 @@ for d in deltaValsFilt:
                          w_cutoff = w_cutoff
                          )
     # include a column in the dataframe for delta value
-    df_temp['meandelta'] = d*np.ones([len(series)])
+    df_temp['Delta'] = d*np.ones([len(series)])
     # add DataFrame to list
     appended_ews.append(df_temp)
     
 # concatenate EWS DataFrames - use delta value and time as indices
-df_ews_brach = pd.concat(appended_ews).set_index('meandelta',append=True).reorder_levels([1,0])
+df_ews_brach = pd.concat(appended_ews).set_index('Delta',append=True).reorder_levels([1,0])
 
 
 
@@ -178,12 +180,12 @@ for d in deltaValsFilt:
     # turn into dataframe and reset index
     pspec_temp = pspec_temp.to_frame().reset_index()
     # add a column with delta value
-    pspec_temp['meandelta'] = d*np.ones(len(pspec_temp))
+    pspec_temp['Delta'] = d*np.ones(len(pspec_temp))
     # add to appeded ews
     appended_pspec.append(pspec_temp)
     
 #  Concatenate dataframes of power spectra and set index as delta value and w
-df_pspec_chlor = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
+df_pspec_chlor = pd.concat(appended_pspec).set_index(['Delta','Frequency'])
 
 
 ## Brachionus pspec
@@ -196,12 +198,12 @@ for d in deltaValsFilt:
     # turn into dataframe and reset index
     pspec_temp = pspec_temp.to_frame().reset_index()
     # add a column with delta value
-    pspec_temp['meandelta'] = d*np.ones(len(pspec_temp))
+    pspec_temp['Delta'] = d*np.ones(len(pspec_temp))
     # add to appeded ews
     appended_pspec.append(pspec_temp)
   
 #  Concatenate dataframes of power spectra and set index as delta value and w
-df_pspec_brach = pd.concat(appended_pspec).set_index(['meandelta','Frequency'])
+df_pspec_brach = pd.concat(appended_pspec).set_index(['Delta','Frequency'])
 
 
 
@@ -226,10 +228,9 @@ plt.rc('ytick', labelsize=small_size)    # fontsize of the tick labels
 plt.rc('legend', fontsize=small_size)    # legend fontsize
 plt.rc('figure', titlesize=med_size)  # fontsize of the figure title
 
-
 # Chlorella plot grid
 plot_pspec_chlor = sns.FacetGrid(plotdf_pspec_chlor, 
-                  col='meandelta',
+                  col='Delta',
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
@@ -249,7 +250,7 @@ for ax in axes:
 
 ## Brachionus plot grid
 plot_pspec_brach = sns.FacetGrid(plotdf_pspec_brach, 
-                  col='meandelta',
+                  col='Delta',
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
@@ -267,7 +268,34 @@ for ax in axes:
     i=i+1
 
 
-## Plot nonlinear fits
+#-------------------------
+## Compute nonlinear fits to each power spectrum
+#-----------------------------
+    
+# Initialise a DataFrame
+df_spec_metrics = pd.DataFrame([])
+# Loop over delta values
+for d in deltaValsFilt:
+    # compute spectral metrics using pspec_metrics
+    series_temp1 = pspec_metrics(
+        df_pspec_chlor.loc[d,'Power spectrum'],
+        ews=['smax', 'aic', 'aic_params'])
+    series_temp2 = pspec_metrics(
+        df_pspec_brach.loc[d,'Power spectrum'],
+        ews=['smax', 'aic', 'aic_params'])
+    # add delta value and species as an entry
+    series_temp1['Delta'] = d
+    series_temp2['Delta'] = d
+    series_temp1['Species'] = 'Chlor'
+    series_temp2['Species'] = 'Brach'
+    # add to a DataFrame
+    df_spec_metrics = df_spec_metrics.append(series_temp1, ignore_index=True)
+    df_spec_metrics = df_spec_metrics.append(series_temp2, ignore_index=True)
+  
+# Index by species and delta
+df_spec_metrics.set_index(['Species','Delta'], inplace=True)    
+
+    
 
 # Define the power spectrum models
 def fit_fold(w,sigma,lam):
@@ -278,6 +306,73 @@ def fit_hopf(w,sigma,mu,w0):
         
 def fit_null(w,sigma):
     return sigma**2/(2*np.pi)* w**0
+
+# Make DataFrame with columns [species, delta, frequency, fold fit, hopf fit, null fit]
+
+
+# List of data frames to append
+append_df = []
+
+
+# Frequency values
+wVals = np.arange(min(plotdf_pspec_chlor['Frequency']), 
+                  max(plotdf_pspec_chlor['Frequency']),
+                  0.01)
+
+# Loop over delta values
+for d in deltaValsFilt:
+    for species in ['Chlor', 'Brach']:
+    
+        # Fold fit values
+        pspec_fold = fit_fold(wVals, df_spec_metrics.loc[species ,d]['Params fold']['sigma'],
+                 df_spec_metrics.loc[species, d]['Params fold']['lam'])
+        # Hopf fit values
+        pspec_hopf = fit_hopf(wVals, df_spec_metrics.loc[species ,d]['Params hopf']['sigma'],
+                 df_spec_metrics.loc[species ,d]['Params hopf']['mu'],
+                 df_spec_metrics.loc[species ,d]['Params hopf']['w0'])
+        # Null fit values
+        pspec_null = fit_null(wVals, df_spec_metrics.loc[species ,d]['Params null']['sigma'])
+
+
+        # Put in a dataframe    
+        data = np.transpose(
+                np.array([np.array([species for i in range(len(wVals))]),
+                          d*np.ones(len(wVals)),
+                          wVals,
+                          pspec_fold,
+                          pspec_hopf,
+                          pspec_null]))
+        columns = ['Species', 'Delta', 'Frequency', 'Fold fit', 'Hopf fit', 'Null fit']
+    
+        df_temp = pd.DataFrame(data=data, columns=columns)
+   
+        # Add to appended list of dataframes to append
+        append_df.append(df_temp)
+
+# Concatenate all dataframes
+df_pspec_fits = pd.concat(append_df)
+
+## Make a grid plot of all the fits
+#
+#g = sns.FacetGrid(df_pspec_fits[df_pspec_fits['Species']=='Chlor'], 
+#                  col='Delta',
+#                  col_wrap=3,
+#                  sharey=False,
+#                  aspect=1.5,
+#                  size=1.8
+#                  )
+#plot_fits_chlor = g.map(plt.plot, 'Frequency', 'Fold fit')
+## Change y labels
+#axes = plot_pspec_chlor.axes
+#for ax in axes[::3]:
+#    ax.set_ylabel('Power')
+## Change titles
+#i=0
+#for ax in axes:
+#    ax.set_title('Delta = '+str(deltaValsFilt[i]))
+#    i=i+1
+#
+
 
 # Get parameters from ews dataframes
     
