@@ -102,6 +102,7 @@ deltaValsFilt = series_lengths[ series_lengths > 40 ].index
 appended_ews = []
 
 # Loop through delta values
+print('Chlorella')
 for d in deltaValsFilt:
     series = raw.loc[d,'Chlorella']
     # plug series into ews_compute - no rolling window (rw=1)
@@ -118,11 +119,15 @@ for d in deltaValsFilt:
     # add DataFrame to list
     appended_ews.append(df_temp)
     
+    # Print complete    
+    print('Delta = '+str(d)+' complete.')
+    
 # concatenate EWS DataFrames - use delta value and time as indices
 df_ews_chlor = pd.concat(appended_ews).set_index('Delta',append=True).reorder_levels([1,0])
 
 
 ## Brachionus EWS
+print('Brachionus')
 
 # Set up a list to store output dataframes of EWS for each delta
 appended_ews = []
@@ -143,6 +148,9 @@ for d in deltaValsFilt:
     df_temp['Delta'] = d*np.ones([len(series)])
     # add DataFrame to list
     appended_ews.append(df_temp)
+    
+    # Print complete    
+    print('Delta = '+str(d)+' complete.')
     
 # concatenate EWS DataFrames - use delta value and time as indices
 df_ews_brach = pd.concat(appended_ews).set_index('Delta',append=True).reorder_levels([1,0])
@@ -207,69 +215,69 @@ df_pspec_brach = pd.concat(appended_pspec).set_index(['Delta','Frequency'])
 
 
 
-#--------------------------------
-## Grid plots of power spectra
-#--------------------------------
-
-
-# Remove indexing for plotting
-plotdf_pspec_chlor = df_pspec_chlor.reset_index()
-plotdf_pspec_brach = df_pspec_brach.reset_index()
-
-# Plot properties
-small_size = 8
-med_size = 10
-big_size = 12
-plt.rc('font', size=small_size)          # controls default text sizes
-plt.rc('axes', titlesize=med_size)     # fontsize of the axes title
-plt.rc('axes', labelsize=med_size)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=small_size)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=small_size)    # fontsize of the tick labels
-plt.rc('legend', fontsize=small_size)    # legend fontsize
-plt.rc('figure', titlesize=med_size)  # fontsize of the figure title
-
-# Chlorella plot grid
-plot_pspec_chlor = sns.FacetGrid(plotdf_pspec_chlor, 
-                  col='Delta',
-                  col_wrap=3,
-                  sharey=False,
-                  aspect=1.5,
-                  size=1.8
-                  )
-plot_pspec_chlor = plot_pspec_chlor.map(plt.plot, 'Frequency', 'Power spectrum')
-# Change y labels
-axes = plot_pspec_chlor.axes
-for ax in axes[::3]:
-    ax.set_ylabel('Power')
-# Change titles
-i=0
-for ax in axes:
-    ax.set_title('Delta = '+str(deltaValsFilt[i]))
-    i=i+1
-
-
-## Brachionus plot grid
-plot_pspec_brach = sns.FacetGrid(plotdf_pspec_brach, 
-                  col='Delta',
-                  col_wrap=3,
-                  sharey=False,
-                  aspect=1.5,
-                  size=1.8
-                  )
-plot_pspec_brach = plot_pspec_brach.map(plt.plot, 'Frequency', 'Power spectrum')
-# Change y labels
-axes = plot_pspec_brach.axes
-for ax in axes[::3]:
-    ax.set_ylabel('Power')
-# Change titles
-i=0
-for ax in axes:
-    ax.set_title('Delta = '+str(deltaValsFilt[i]))
-    i=i+1
+##--------------------------------
+### Grid plots of power spectra
+##--------------------------------
+#
+#
+## Remove indexing for plotting
+#plotdf_pspec_chlor = df_pspec_chlor.reset_index()
+#plotdf_pspec_brach = df_pspec_brach.reset_index()
+#
+## Plot properties
+#small_size = 8
+#med_size = 10
+#big_size = 12
+#plt.rc('font', size=small_size)          # controls default text sizes
+#plt.rc('axes', titlesize=med_size)     # fontsize of the axes title
+#plt.rc('axes', labelsize=med_size)    # fontsize of the x and y labels
+#plt.rc('xtick', labelsize=small_size)    # fontsize of the tick labels
+#plt.rc('ytick', labelsize=small_size)    # fontsize of the tick labels
+#plt.rc('legend', fontsize=small_size)    # legend fontsize
+#plt.rc('figure', titlesize=med_size)  # fontsize of the figure title
+#
+## Chlorella plot grid
+#plot_pspec_chlor = sns.FacetGrid(plotdf_pspec_chlor, 
+#                  col='Delta',
+#                  col_wrap=3,
+#                  sharey=False,
+#                  aspect=1.5,
+#                  size=1.8
+#                  )
+#plot_pspec_chlor = plot_pspec_chlor.map(plt.plot, 'Frequency', 'Power spectrum')
+## Change y labels
+#axes = plot_pspec_chlor.axes
+#for ax in axes[::3]:
+#    ax.set_ylabel('Power')
+## Change titles
+#i=0
+#for ax in axes:
+#    ax.set_title('Delta = '+str(deltaValsFilt[i]))
+#    i=i+1
+#
+#
+### Brachionus plot grid
+#plot_pspec_brach = sns.FacetGrid(plotdf_pspec_brach, 
+#                  col='Delta',
+#                  col_wrap=3,
+#                  sharey=False,
+#                  aspect=1.5,
+#                  size=1.8
+#                  )
+#plot_pspec_brach = plot_pspec_brach.map(plt.plot, 'Frequency', 'Power spectrum')
+## Change y labels
+#axes = plot_pspec_brach.axes
+#for ax in axes[::3]:
+#    ax.set_ylabel('Power')
+## Change titles
+#i=0
+#for ax in axes:
+#    ax.set_title('Delta = '+str(deltaValsFilt[i]))
+#    i=i+1
 
 
 #-------------------------
-## Compute nonlinear fits to each power spectrum
+## Compute nonlinear fits for each power spectrum and display as grid plot
 #-----------------------------
     
 # Initialise a DataFrame
@@ -307,37 +315,35 @@ def fit_hopf(w,sigma,mu,w0):
 def fit_null(w,sigma):
     return sigma**2/(2*np.pi)* w**0
 
-# Make DataFrame with columns [species, delta, frequency, fold fit, hopf fit, null fit]
-
 
 # List of data frames to append
 append_df = []
 
-
-# Frequency values
-#wVals = np.arange(min(plotdf_pspec_chlor['Frequency']), 
-#                  max(plotdf_pspec_chlor['Frequency']),
-#                  0.01)
+# Frequency values from pspec computation
 wVals = df_pspec_chlor.index.levels[1]
+
+# Frequency values to use when plotting nonlinear fits
+wVals_dense = np.linspace(min(wVals), max(wVals), 2*len(wVals))
+#wVals = df_pspec_chlor.index.levels[1]
 
 # Loop over delta values
 for d in deltaValsFilt:
     for species in ['Chlor', 'Brach']:
     
         # Fold fit values
-        pspec_fold = fit_fold(wVals, df_spec_metrics.loc[species ,d]['Params fold']['sigma'],
+        pspec_fold = fit_fold(wVals_dense, df_spec_metrics.loc[species ,d]['Params fold']['sigma'],
                  df_spec_metrics.loc[species, d]['Params fold']['lam'])
         # Hopf fit values
-        pspec_hopf = fit_hopf(wVals, df_spec_metrics.loc[species ,d]['Params hopf']['sigma'],
+        pspec_hopf = fit_hopf(wVals_dense, df_spec_metrics.loc[species ,d]['Params hopf']['sigma'],
                  df_spec_metrics.loc[species ,d]['Params hopf']['mu'],
                  df_spec_metrics.loc[species ,d]['Params hopf']['w0'])
         # Null fit values
-        pspec_null = fit_null(wVals, df_spec_metrics.loc[species ,d]['Params null']['sigma'])
+        pspec_null = fit_null(wVals_dense, df_spec_metrics.loc[species ,d]['Params null']['sigma'])
         
         # Create dictionary for dataframe
-        dic = {'Species': [species for i in range(len(wVals))],
-                          'Delta': d*np.ones(len(wVals)),
-                          'Frequency': wVals,
+        dic = {'Species': [species for i in range(len(wVals_dense))],
+                          'Delta': d*np.ones(len(wVals_dense)),
+                          'Frequency': wVals_dense,
                           'Fold fit': pspec_fold,
                           'Hopf fit': pspec_hopf,
                           'Null fit': pspec_null
@@ -345,27 +351,61 @@ for d in deltaValsFilt:
     
         df_temp = pd.DataFrame(data=dic)
         
-        # Include column for empirical observations
+        # Set the index to frequency and species
+        df_temp.set_index(['Species', 'Delta','Frequency'], inplace=True)
         
+        # Put empirical power spectra in its own Dataframe indexed by frequency and species
+        spec_empirical = df_pspec_chlor.loc[d] if species=='Chlor' else df_pspec_brach.loc[d]
+        spec_empirical['Species'] = [species for i in wVals]
+        spec_empirical['Delta'] = d*np.ones(len(wVals))
+        spec_empirical.set_index(['Species','Delta'], inplace=True, append=True)
+        spec_empirical = spec_empirical.reorder_levels(['Species','Delta','Frequency'])
+        
+        
+        # Concatenate with empirical spectrum
+        df_temp = pd.concat(
+                [df_temp, spec_empirical],
+                axis=1)
+        
+               
         # Add to appended list of dataframes to append
         append_df.append(df_temp)
+        
 
 # Concatenate all dataframes
-df_pspec_fits = pd.concat(append_df, ignore_index=True)
+df_pspec_fits = pd.concat(append_df, axis=0)
 
-# Make a grid plot of all the fits
 
-g = sns.FacetGrid(df_pspec_fits[df_pspec_fits['Species']=='Chlor'], 
+
+# Chlorella grid plot
+
+g = sns.FacetGrid(df_pspec_fits.loc['Chlor'].reset_index(level=['Delta','Frequency']), 
                   col='Delta',
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
                   size=1.8
                   )
-g.map(plt.plot, 'Frequency', 'Fold fit')
-g.map(plt.plot, 'Frequency', 'Hopf fit', color='r')
-g.map(plt.plot, 'Frequency', 'Null fit', color='g')
+g.map(plt.plot, 'Frequency', 'Fold fit', linewidth=1)
+g.map(plt.plot, 'Frequency', 'Hopf fit', color='r',linewidth=1)
+g.map(plt.plot, 'Frequency', 'Null fit', color='g',linewidth=1)
+g.map(plt.plot, 'Frequency', 'Power spectrum', color='k', linewidth=1)
 
+
+
+# Brachionus grid plot
+
+g = sns.FacetGrid(df_pspec_fits.loc['Brach'].reset_index(level=['Delta','Frequency']), 
+                  col='Delta',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  size=1.8
+                  )
+g.map(plt.plot, 'Frequency', 'Fold fit', linewidth=1)
+g.map(plt.plot, 'Frequency', 'Hopf fit', color='r',linewidth=1)
+g.map(plt.plot, 'Frequency', 'Null fit', color='g',linewidth=1)
+g.map(plt.plot, 'Frequency', 'Power spectrum', color='k', linewidth=1)
 
 
 # Change y labels
@@ -386,8 +426,8 @@ for ax in axes[::3]:
 ## Plots of EWS against delta value
 #----------------
         
-# Make plot of smoothing for some delta value
-df_ews_chlor.loc[1.37,['State variable','Smoothing']].plot(title='Early warning signals')
+## Make plot of smoothing for some delta value
+#df_ews_chlor.loc[1.37,['State variable','Smoothing']].plot(title='Early warning signals')
 
 # Plot of EWS metrics
 fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
@@ -401,6 +441,17 @@ ews_summary_chlor[['Smax']].plot(ax=axes[3])
 ews_summary_brach[['Smax']].plot(ax=axes[3],secondary_y=True)
 ews_summary_chlor[['AIC hopf']].plot(ax=axes[4])
 ews_summary_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
+
+
+
+# print out hopf parameters
+for d in deltaValsFilt:
+    print(df_spec_metrics.loc['Chlor',:]['Params hopf'].loc[d])
+
+
+
+
+
 
 
 
