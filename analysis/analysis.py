@@ -334,61 +334,46 @@ for d in deltaValsFilt:
         pspec_null = fit_null(wVals, df_spec_metrics.loc[species ,d]['Params null']['sigma'])
 
 
-        # Put in a dataframe    
-        data = np.transpose(
-                np.array([np.array([species for i in range(len(wVals))]),
-                          d*np.ones(len(wVals)),
-                          wVals,
-                          pspec_fold,
-                          pspec_hopf,
-                          pspec_null]))
-        columns = ['Species', 'Delta', 'Frequency', 'Fold fit', 'Hopf fit', 'Null fit']
+        # Create dictionary for dataframe
+        dic = {'Species': [species for i in range(len(wVals))],
+                          'Delta': d*np.ones(len(wVals)),
+                          'Frequency': wVals,
+                          'Fold fit': pspec_fold,
+                          'Hopf fit': pspec_hopf,
+                          'Null fit': pspec_null
+                          }
     
-        df_temp = pd.DataFrame(data=data, columns=columns)
+        df_temp = pd.DataFrame(data=dic)
    
         # Add to appended list of dataframes to append
         append_df.append(df_temp)
 
 # Concatenate all dataframes
-df_pspec_fits = pd.concat(append_df)
+df_pspec_fits = pd.concat(append_df, ignore_index=True)
 
-## Make a grid plot of all the fits
-#
-#g = sns.FacetGrid(df_pspec_fits[df_pspec_fits['Species']=='Chlor'], 
-#                  col='Delta',
-#                  col_wrap=3,
-#                  sharey=False,
-#                  aspect=1.5,
-#                  size=1.8
-#                  )
-#plot_fits_chlor = g.map(plt.plot, 'Frequency', 'Fold fit')
-## Change y labels
-#axes = plot_pspec_chlor.axes
-#for ax in axes[::3]:
-#    ax.set_ylabel('Power')
-## Change titles
-#i=0
-#for ax in axes:
-#    ax.set_title('Delta = '+str(deltaValsFilt[i]))
-#    i=i+1
-#
+# Make a grid plot of all the fits
+
+g = sns.FacetGrid(df_pspec_fits[df_pspec_fits['Species']=='Chlor'], 
+                  col='Delta',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  size=1.8
+                  )
+g.map(plt.plot, 'Frequency', 'Fold fit')
+g.map(plt.plot, 'Frequency', 'Hopf fit', color='r')
+g.map(plt.plot, 'Frequency', 'Null fit', color='g')
+# Change y labels
+axes = g.axes
+for ax in axes[::3]:
+    ax.set_ylabel('Power')
 
 
-# Get parameters from ews dataframes
-    
 
-#
-## Make plot
-#w_vals = np.linspace(-max(pspec.index), max(pspec.index), 100)
-#fig2 = plt.figure(2)
-#pspec.plot(label='Measured')
-#plt.plot(w_vals, fit_fold(w_vals, spec_ews['Params fold']['sigma'], spec_ews['Params fold']['lam']),label='Fold (AIC='+str(round(spec_ews['AIC fold'],2))+')')
-#plt.plot(w_vals, fit_hopf(w_vals, spec_ews['Params hopf']['sigma'], spec_ews['Params hopf']['mu'], spec_ews['Params hopf']['w0']),label='Hopf (AIC='+str(round(spec_ews['AIC hopf'],2))+')')
-#plt.plot(w_vals, fit_null(w_vals, spec_ews['Params null']['sigma']),label='Null (AIC='+str(round(spec_ews['AIC null'],2))+')')
-#plt.ylabel('Power')
-#plt.legend()
-#plt.title('Power spectrum and fits at time t='+str(t_pspec))
-#
+
+
+
+
 
 
 
