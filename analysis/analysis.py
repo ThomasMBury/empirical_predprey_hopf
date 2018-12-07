@@ -127,7 +127,7 @@ df_ews_chlor = pd.concat(appended_ews).set_index('Delta',append=True).reorder_le
 
 
 ## Brachionus EWS
-print('Brachionus')
+print('\nBrachionus')
 
 # Set up a list to store output dataframes of EWS for each delta
 appended_ews = []
@@ -386,11 +386,18 @@ g = sns.FacetGrid(df_pspec_fits.loc['Chlor'].reset_index(level=['Delta','Frequen
                   aspect=1.5,
                   size=1.8
                   )
+# Axes properties
+axes = g.axes
+for ax in axes[::3]:
+    ax.set_ylabel('Power')
+axes[6].set_ylim(top=1.1*max(df_pspec_fits.loc[('Chlor',0.69),'Power spectrum']))
+axes[7].set_ylim(top=1.1*max(df_pspec_fits.loc[('Chlor',0.95),'Power spectrum']))
+
+# Plots
 g.map(plt.plot, 'Frequency', 'Fold fit', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Hopf fit', color='r',linewidth=1)
 g.map(plt.plot, 'Frequency', 'Null fit', color='g',linewidth=1)
 g.map(plt.plot, 'Frequency', 'Power spectrum', color='k', linewidth=1)
-
 
 
 # Brachionus grid plot
@@ -408,7 +415,7 @@ g.map(plt.plot, 'Frequency', 'Null fit', color='g',linewidth=1)
 g.map(plt.plot, 'Frequency', 'Power spectrum', color='k', linewidth=1)
 
 
-# Change y labels
+# Axes properties
 axes = g.axes
 for ax in axes[::3]:
     ax.set_ylabel('Power')
