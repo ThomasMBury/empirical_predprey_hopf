@@ -28,9 +28,10 @@ from ews_compute import ews_compute
 #–-----------------------
 
 # EWS computation parmaeters
-band_width = 0.2 # band width of Gaussian smoothing
+band_width = 0.1 # band width of Gaussian smoothing
 ham_length = 40 # length of Hamming window
-w_cutoff = 0.5 # cutoff of higher frequencies
+ham_offset = 0.5 # offset of Hamming windows
+w_cutoff = 1 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic','aic_params','cf','cv'] # EWS to compute
 lag_times = [1,2] # lag times for autocorrelation computation
 
@@ -112,6 +113,8 @@ for d in deltaValsFilt:
                          band_width = band_width,
                          ews = ews,
                          lag_times = lag_times,
+                         ham_length = ham_length,
+                         ham_offset = ham_offset,
                          w_cutoff = w_cutoff
                          )
     # DataFrame of EWS metrics
@@ -153,6 +156,8 @@ for d in deltaValsFilt:
                          band_width = band_width,
                          ews = ews,
                          lag_times = lag_times,
+                         ham_length = ham_length,
+                         ham_offset = ham_offset,
                          w_cutoff = w_cutoff
                          )
     # DataFrame of EWS metrics
@@ -227,7 +232,7 @@ g = sns.FacetGrid(df_pspec_chlor.reset_index(level=['Delta','Frequency']),
                   size=1.8
                   )
 # Plots
-g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=2)
+g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit fold', color='b', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
@@ -237,10 +242,16 @@ axes = g.axes
 for ax in axes[::3]:
     ax.set_ylabel('Power')
 # Y limits
-axes[6].set_ylim(top=1.1*max(df_pspec_chlor.loc[0.69,'Empirical']))
-axes[7].set_ylim(top=1.1*max(df_pspec_chlor.loc[0.69,'Empirical']))
-for ax in axes:
-    ax.set_ylim(bottom=0)
+for i in range(len(axes)):
+    ax=axes[i]
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_chlor.loc[deltaValsFilt[i]]['Empirical']))
+# Assign to plot label
+pspec_plot_chlor=g
+# Export plot
+pspec_plot_chlor.savefig("../figures/pspec_grid_chlor.png", dpi=200)
+
+
+
 
 ## Brachionus grid plot
 g = sns.FacetGrid(df_pspec_brach.reset_index(level=['Delta','Frequency']), 
@@ -251,7 +262,7 @@ g = sns.FacetGrid(df_pspec_brach.reset_index(level=['Delta','Frequency']),
                   size=1.8
                   )
 # Plots
-g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=2)
+g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit fold', color='b', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
@@ -261,15 +272,24 @@ axes = g.axes
 for ax in axes[::3]:
     ax.set_ylabel('Power')
 # Y limits
-axes[4].set_ylim(top=1.1*max(df_pspec_brach.loc[0.64,'Empirical']))
-for ax in axes:
-    ax.set_ylim(bottom=0)
+for i in range(len(axes)):
+    ax=axes[i]
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_brach.loc[deltaValsFilt[i]]['Empirical']))
+# Assign to plot label
+pspec_plot_brach=g
+# Export plot
+pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
 
 
 
+#------------------
+# Export EWS data for plotting in MMA
+#-------------------
+    
+cols=['Variance','Coefficient of variation','Lag-1 AC','AIC hopf','Smax']
 
-
-
+df_ews_chlor[cols].to_csv("../data_export/ews_chlor.csv")
+df_ews_brach[cols].to_csv("../data_export/ews_brach.csv")
 
 
 
