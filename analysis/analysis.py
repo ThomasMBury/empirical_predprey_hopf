@@ -9,13 +9,13 @@ Analysis of chemostat data from Fussmann et al.
 
 """
 
-# import python libraries
+# Import python libraries
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# import EWS function
+# Import EWS function
 import sys
 sys.path.append('../../early_warnings')
 from ews_compute import ews_compute
@@ -31,14 +31,14 @@ from ews_compute import ews_compute
 band_width = 0.1 # band width of Gaussian smoothing
 ham_length = 40 # length of Hamming window
 ham_offset = 0.5 # offset of Hamming windows
-w_cutoff = 1 # cutoff of higher frequencies
+w_cutoff = 0.8 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic','aic_params','cf','cv'] # EWS to compute
 lag_times = [1,2] # lag times for autocorrelation computation
 
 
 
 #------------------
-## Data curation
+## Data import and curation
 #-------------------
 
 # import data
@@ -68,16 +68,21 @@ for d in deltaVals:
 ## index dataframe by Delta and day#
 raw.set_index(['Delta','day#'], inplace=True)            
 
+# export trajectories as a csv file
+raw_traj = raw[['Chlorella','Brachionus']]
+raw_traj.to_csv("../data_export/series_data.csv", index_label=['Delta','day#'])               
+               
+               
 # compute number of data points for each value of delta
 series_lengths=pd.Series(index=deltaVals)
 series_lengths.index.name= 'Delta'
 for d in deltaVals:
     series_lengths.loc[d] = len(raw.loc[d])
     
-# only keep delta values with over 40 data points (so power spec can be computed)
-deltaValsFilt = series_lengths[ series_lengths > 40 ].index
+# only consider the delta values for which the corresponding trajecotories have over 25 data points
+deltaValsFilt = series_lengths[ series_lengths > 25 ].index
 
-               
+           
                
 #–--------------------          
 ## Plot of all trajctories
@@ -225,9 +230,12 @@ df_ews_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 ## Power spectra visualisation
 #--------------------------------
 
+# Limits for x-axis
+xmin = -2.5
+xmax = 2.5
 
-## Chlorella grid plot
-#plt.rc('text', usetex=True)
+## Chlorella
+
 g = sns.FacetGrid(df_pspec_chlor.reset_index(level=['Delta','Frequency']), 
                   col='Delta',
                   col_wrap=3,
@@ -243,25 +251,50 @@ g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidt
 g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
 # Axes properties
 axes = g.axes
-# Y labels
-for ax in axes[::3]:
-    ax.set_ylabel('Power')
-# Y limits
+# Global axes properties
 for i in range(len(axes)):
     ax=axes[i]
     d=deltaValsFilt[i]
-    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_chlor.loc[d]['Empirical']))
-    ax.set_xlim(left=-2.5, right=2.5)
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_chlor.loc[d]['Empirical'].loc[xmin:xmax].dropna()))
+    ax.set_xlim(left=xmin, right=xmax)
+    ax.set_xticks([-2,-1,0,1,2])
     ax.set_title('Delta = %.2f' % deltaValsFilt[i])
+    # AIC weights
+    xpos=0.7
+    ypos=0.9
+    ax.text(xpos,ypos,
+            '$w_f$ = %.1f' % df_ews_chlor.loc[d]['AIC fold'],
+            fontsize=9,
+            color='b',
+            transform=ax.transAxes)  
+    ax.text(xpos,ypos-0.12,
+            '$w_h$ = %.1f' % df_ews_chlor.loc[d]['AIC hopf'],
+            fontsize=9,
+            color='r',
+            transform=ax.transAxes)
+    ax.text(xpos,ypos-2*0.12,
+            '$w_n$ = %.1f' % df_ews_chlor.loc[d]['AIC null'],
+            fontsize=9,
+            color='g',
+            transform=ax.transAxes)
+# Y labels
+for ax in axes[::3]:
+    ax.set_ylabel('Power')
     
+# Specific Y limits
+axes[1].set_ylim(top=0.004)
+axes[8].set_ylim(top=0.04)
+#axes[3].set_ylim(top=3)
+
 # Assign to plot label
 pspec_plot_chlor=g
 
-df_ews_chlor.loc[d]['AIC fold']
+
 
 
 
 ## Brachionus grid plot
+# x-axes limits
 g = sns.FacetGrid(df_pspec_brach.reset_index(level=['Delta','Frequency']), 
                   col='Delta',
                   col_wrap=3,
@@ -277,15 +310,41 @@ g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidt
 g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
 # Axes properties
 axes = g.axes
+# Global axes properties
+for i in range(len(axes)):
+    ax=axes[i]
+    d=deltaValsFilt[i]
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_brach.loc[d]['Empirical'].loc[xmin:xmax].dropna()))
+    ax.set_xlim(left=xmin, right=xmax)
+    ax.set_xticks([-2,-1,0,1,2])
+    ax.set_title('Delta = %.2f' % deltaValsFilt[i])
+    # AIC weights
+    xpos=0.7
+    ypos=0.9
+    ax.text(xpos,ypos,
+            '$w_f$ = %.1f' % df_ews_brach.loc[d]['AIC fold'],
+            fontsize=9,
+            color='b',
+            transform=ax.transAxes)  
+    ax.text(xpos,ypos-0.12,
+            '$w_h$ = %.1f' % df_ews_brach.loc[d]['AIC hopf'],
+            fontsize=9,
+            color='r',
+            transform=ax.transAxes)
+    ax.text(xpos,ypos-2*0.12,
+            '$w_n$ = %.1f' % df_ews_brach.loc[d]['AIC null'],
+            fontsize=9,
+            color='g',
+            transform=ax.transAxes)
 # Y labels
 for ax in axes[::3]:
     ax.set_ylabel('Power')
-# Y limits
-for i in range(len(axes)):
-    ax=axes[i]
-    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_brach.loc[deltaValsFilt[i]]['Empirical']))
-    ax.set_xlim(left=-2.5, right=2.5)
-    ax.set_title('Delta = %.2f' % deltaValsFilt[i])
+    
+# Specific Y limits
+axes[1].set_ylim(top=1)
+axes[2].set_ylim(top=1)
+axes[3].set_ylim(top=3)
+
 # Assign to plot label
 pspec_plot_brach=g
 
@@ -305,6 +364,15 @@ pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
 cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Smax','AIC fold','AIC hopf','AIC null']
 df_ews_chlor[cols].to_csv("../data_export/ews_chlor.csv")
 df_ews_brach[cols].to_csv("../data_export/ews_brach.csv")
+
+# Export empirical pspec data for plotting in MMA
+df_pspec_chlor['Empirical'].dropna().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
+df_pspec_brach['Empirical'].dropna().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
+
+
+
+
+
 
 
 
