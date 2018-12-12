@@ -181,6 +181,10 @@ df_ews_brach = pd.concat(appended_ews).set_index('Delta',append=True).reorder_le
 df_pspec_brach = pd.concat(appended_pspec).set_index('Delta',append=True).reorder_levels([2,0,1])
 
 
+# Check data smoothing looks ok
+df_ews_chlor.loc[1.37,['State variable','Smoothing']].plot(title='Early warning signals')
+
+
 ## Reduce EWS dataframes by getting rid of NaN cells and dropping the Time index
 df_ews_chlor = df_ews_chlor.dropna().reset_index(level=1, drop=True)
 df_ews_brach = df_ews_brach.dropna().reset_index(level=1, drop=True)
@@ -198,8 +202,7 @@ df_pspec_brach = df_pspec_brach.reset_index(level=1,)
 ## Plots of EWS against delta value
 #----------------
         
-# Check data smoothing looks ok
-df_ews_chlor.loc[1.37,['State variable','Smoothing']].plot(title='Early warning signals')
+
 
 # Plot of EWS metrics
 fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
@@ -224,6 +227,7 @@ df_ews_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 
 
 ## Chlorella grid plot
+#plt.rc('text', usetex=True)
 g = sns.FacetGrid(df_pspec_chlor.reset_index(level=['Delta','Frequency']), 
                   col='Delta',
                   col_wrap=3,
@@ -232,6 +236,7 @@ g = sns.FacetGrid(df_pspec_chlor.reset_index(level=['Delta','Frequency']),
                   size=1.8
                   )
 # Plots
+plt.rc('axes', titlesize=10) 
 g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit fold', color='b', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidth=1)
@@ -244,12 +249,15 @@ for ax in axes[::3]:
 # Y limits
 for i in range(len(axes)):
     ax=axes[i]
-    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_chlor.loc[deltaValsFilt[i]]['Empirical']))
+    d=deltaValsFilt[i]
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_chlor.loc[d]['Empirical']))
+    ax.set_xlim(left=-2.5, right=2.5)
+    ax.set_title('Delta = %.2f' % deltaValsFilt[i])
+    
 # Assign to plot label
 pspec_plot_chlor=g
-# Export plot
-pspec_plot_chlor.savefig("../figures/pspec_grid_chlor.png", dpi=200)
 
+df_ews_chlor.loc[d]['AIC fold']
 
 
 
@@ -262,6 +270,7 @@ g = sns.FacetGrid(df_pspec_brach.reset_index(level=['Delta','Frequency']),
                   size=1.8
                   )
 # Plots
+plt.rc('axes', titlesize=10) 
 g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit fold', color='b', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidth=1)
@@ -275,19 +284,25 @@ for ax in axes[::3]:
 for i in range(len(axes)):
     ax=axes[i]
     ax.set_ylim(bottom=0, top=1.1*max(df_pspec_brach.loc[deltaValsFilt[i]]['Empirical']))
+    ax.set_xlim(left=-2.5, right=2.5)
+    ax.set_title('Delta = %.2f' % deltaValsFilt[i])
 # Assign to plot label
 pspec_plot_brach=g
-# Export plot
+
+
+
+
+#-----------------------
+# Export data and plots
+#-----------------------
+    
+
+# Export pspec plots
+pspec_plot_chlor.savefig("../figures/pspec_grid_chlor.png", dpi=200)
 pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
 
-
-
-#------------------
 # Export EWS data for plotting in MMA
-#-------------------
-    
-cols=['Variance','Coefficient of variation','Lag-1 AC','AIC hopf','Smax']
-
+cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Smax','AIC fold','AIC hopf','AIC null']
 df_ews_chlor[cols].to_csv("../data_export/ews_chlor.csv")
 df_ews_brach[cols].to_csv("../data_export/ews_brach.csv")
 
