@@ -366,8 +366,8 @@ df_ews_chlor[cols].to_csv("../data_export/ews_chlor.csv")
 df_ews_brach[cols].to_csv("../data_export/ews_brach.csv")
 
 # Export empirical pspec data for plotting in MMA
-df_pspec_chlor['Empirical'].dropna().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
-df_pspec_brach['Empirical'].dropna().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
+df_pspec_chlor['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
+df_pspec_brach['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
 
 
 
