@@ -28,12 +28,12 @@ from ews_compute import ews_compute
 #–-----------------------
 
 # EWS computation parmaeters
-band_width = 0.1 # band width of Gaussian smoothing
+band_width = 20 # band width of Gaussian smoothing (given as number of days)
 ham_length = 40 # length of Hamming window
 ham_offset = 0.5 # offset of Hamming windows
 w_cutoff = 0.8 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic','aic_params','cf','cv'] # EWS to compute
-lag_times = [1,2] # lag times for autocorrelation computation
+lag_times = [1,2,10] # lag times for autocorrelation computation (lag of 10 to show decreasing AC where tau=T/2)
 
 
 
@@ -197,7 +197,7 @@ df_ews.loc['Brachionus'][['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 
 
 # Set up frame and axes
-g = sns.FacetGrid(df_ews_full.loc['Chlorella'].reset_index(), 
+g = sns.FacetGrid(df_ews_full.loc['Brachionus'].reset_index(), 
                   col='Delta',
                   col_wrap=3,
                   sharey=False,
@@ -275,7 +275,6 @@ for ax in axes[::3]:
     
 # Specific Y limits
 axes[1].set_ylim(top=0.004)
-axes[8].set_ylim(top=0.04)
 #axes[3].set_ylim(top=3)
 
 # Assign to plot label
@@ -336,6 +335,7 @@ for ax in axes[::3]:
 axes[1].set_ylim(top=1)
 axes[2].set_ylim(top=1)
 axes[3].set_ylim(top=3)
+axes[9].set_ylim(top=0.5)
 
 # Assign to plot label
 pspec_plot_brach=g
@@ -353,7 +353,7 @@ pspec_plot_chlor.savefig("../figures/pspec_grid_chlor.png", dpi=200)
 pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
 
 # Export EWS data for plotting in MMA
-cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Smax','AIC fold','AIC hopf','AIC null']
+cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Lag-10 AC','Smax','AIC fold','AIC hopf','AIC null']
 df_ews.loc['Chlorella'][cols].to_csv("../data_export/ews_chlor.csv")
 df_ews.loc['Brachionus'][cols].to_csv("../data_export/ews_brach.csv")
 
