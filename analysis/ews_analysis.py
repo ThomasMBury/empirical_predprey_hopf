@@ -165,8 +165,8 @@ g.map(plt.plot, 'Time', 'State variable', linewidth=1)
 axes = g.axes
 # Assign plot label
 plot_traj = g
-# Export plot
-plot_traj.savefig("../figures/empirical_series2.png", dpi=200)
+## Export plot
+#plot_traj.savefig("../figures/empirical_series2.png", dpi=200)
 
 
 
