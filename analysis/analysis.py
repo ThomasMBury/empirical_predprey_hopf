@@ -41,39 +41,39 @@ lag_times = [1,2] # lag times for autocorrelation computation
 ## Data import and curation
 #-------------------
 
-# import data
+# Import raw data
 raw = pd.read_excel('../data/raw_fussmann_2000.xls',header=[1])
 
-# round delta column to 2d.p
+# Round delta column to 2d.p
 raw['meandelta'] = raw['meandelta'].apply(lambda x: round(x,2))
 
-# rename delta column
-raw.rename(columns={'meandelta':'Delta'}, inplace=True)
+# Rename column labels
+raw.rename(columns={'meandelta':'Delta', 'day#':'Time'}, inplace=True)
 
-## shift day# to start at 0
-# function to take list and subtract minimum element
+## Shift day# to start at 0
+
+# Function to take list and subtract minimum element
 def zero_shift(array):
     return array-min(array)
 
-# unique delta values
+# Unique delta values
 deltaVals = raw['Delta'].unique()
 
-# loop through delta values
+# Loop through delta values
 for d in deltaVals: 
-    # shift time values to start at 0
-    raw.loc[ raw['Delta']==d,'day#'] = zero_shift(
-            raw.loc[ raw['Delta']==d,'day#']) 
+    # Shift time values to start at 0
+    raw.loc[ raw['Delta']==d,'Time'] = zero_shift(
+            raw.loc[ raw['Delta']==d,'Time']) 
 
+## Index dataframe by Delta and Time
+raw.set_index(['Delta','Time'], inplace=True)            
 
-## index dataframe by Delta and day#
-raw.set_index(['Delta','day#'], inplace=True)            
-
-# export trajectories as a csv file
+# Export trajectories as a csv file
 raw_traj = raw[['Chlorella','Brachionus']]
-raw_traj.to_csv("../data_export/series_data.csv", index_label=['Delta','day#'])               
+raw_traj.to_csv("../data_export/series_data.csv", index_label=['Delta','Time'])               
                
                
-# compute number of data points for each value of delta
+# Compute number of data points for each value of delta
 series_lengths=pd.Series(index=deltaVals)
 series_lengths.index.name= 'Delta'
 for d in deltaVals:
@@ -82,7 +82,7 @@ for d in deltaVals:
 # only consider the delta values for which the corresponding trajecotories have over 25 data points
 deltaValsFilt = series_lengths[ series_lengths > 25 ].index
 
-           
+       
 
 #--------------------------
 # Compute EWS
@@ -145,65 +145,47 @@ df_pspec = df_pspec.reset_index(level=2, drop=True)
 ## Grid plot of all trajectories and smoothing
 #--------------------------
 
-
-
-## Chlorella trajectories plot
-g = sns.FacetGrid(df_ews_full.reset_index(level=['Delta','Time']), 
+# Set up frame and axes
+g = sns.FacetGrid(df_ews_full.reset_index(), 
                   col='Delta',
+                  hue='Species',
+                  palette='Set1',
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
                   size=1.8
                   )
-# Plots
-plt.rc('axes', titlesize=10) 
-g.map(plt.plot, 'Time', 'State variable', color='tab:blue', linewidth=1)
-g.map(plt.plot, 'Time', 'Smoothing', color='tab:orange', linewidth=1)
+# Set plot title size
+plt.rc('axes', titlesize=10)
+# Plot state variable
+g.map(plt.plot, 'Time', 'State variable', linewidth=1)
+## Plot smoothing
+#g.map(plt.plot, 'Time', 'Smoothing', color='tab:orange', linewidth=1)
 # Axes properties
 axes = g.axes
 # Assign plot label
-plot_traj_chlor=g
+plot_traj = g
 
 
 
-## Brachionus trajectories plot
-g = sns.FacetGrid(df_ews_brach_full.reset_index(level=['Delta','Time']), 
-                  col='Delta',
-                  col_wrap=3,
-                  sharey=False,
-                  aspect=1.5,
-                  size=1.8
-                  )
-# Plots
-plt.rc('axes', titlesize=10) 
-g.map(plt.plot, 'Time', 'State variable', color='tab:blue', linewidth=1)
-g.map(plt.plot, 'Time', 'Smoothing', color='tab:orange', linewidth=1)
-# Axes properties
-axes = g.axes
-for ax in axes[::3]:
-    ax.set_ylabel('Brachionus')
-# Assign plot label
-plot_traj_chlor=g
 
 
 #----------------
 ## Plots of EWS against delta value
 #----------------
-        
-
 
 # Plot of EWS metrics
 fig1, axes = plt.subplots(nrows=5, ncols=1, sharex=True, figsize=(6,6))
-df_ews_chlor[['Variance']].plot(ax=axes[0],title='Early warning signals')
-df_ews_brach[['Variance']].plot(ax=axes[0],secondary_y=True)
-df_ews_chlor[['Coefficient of variation']].plot(ax=axes[1])
-df_ews_brach[['Coefficient of variation']].plot(ax=axes[1],secondary_y=True)
-df_ews_chlor[['Lag-1 AC']].plot(ax=axes[2])
-df_ews_brach[['Lag-1 AC']].plot(ax=axes[2],secondary_y=True)
-df_ews_chlor[['Smax']].plot(ax=axes[3])
-df_ews_brach[['Smax']].plot(ax=axes[3],secondary_y=True)
-df_ews_chlor[['AIC hopf']].plot(ax=axes[4])
-df_ews_brach[['AIC hopf']].plot(ax=axes[4],secondary_y=True)
+df_ews.loc['Chlorella'][['Variance']].plot(ax=axes[0],title='Early warning signals')
+df_ews.loc['Brachionus'][['Variance']].plot(ax=axes[0],secondary_y=True)
+df_ews.loc['Chlorella'][['Coefficient of variation']].plot(ax=axes[1])
+df_ews.loc['Brachionus'][['Coefficient of variation']].plot(ax=axes[1],secondary_y=True)
+df_ews.loc['Chlorella'][['Lag-1 AC']].plot(ax=axes[2])
+df_ews.loc['Brachionus'][['Lag-1 AC']].plot(ax=axes[2],secondary_y=True)
+df_ews.loc['Chlorella'][['Smax']].plot(ax=axes[3])
+df_ews.loc['Brachionus'][['Smax']].plot(ax=axes[3],secondary_y=True)
+df_ews.loc['Chlorella'][['AIC hopf']].plot(ax=axes[4])
+df_ews.loc['Brachionus'][['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 
 
 
