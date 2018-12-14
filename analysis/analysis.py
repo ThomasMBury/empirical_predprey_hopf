@@ -121,7 +121,7 @@ for species in ['Chlorella','Brachionus']:
         df_ews_temp['Species'] = species
         
         df_pspec_temp['Delta'] = d
-        df_pspec_temp['Species'] = d
+        df_pspec_temp['Species'] = species
         
         # add DataFrames to list
         appended_ews.append(df_ews_temp)
@@ -133,7 +133,7 @@ for species in ['Chlorella','Brachionus']:
 # concatenate EWS DataFrames - use species, delta and time as indices
 df_ews_full = pd.concat(appended_ews).reset_index().set_index(['Species','Delta','Time'])
 # concatenate pspec DataFrames - use species, delta, time and frequency as indices
-df_pspec = pd.concat(appended_pspec).reset_index().set_Index(['Species','Delta','Time','Frequency'])
+df_pspec = pd.concat(appended_pspec).reset_index().set_index(['Species','Delta','Time','Frequency'])
 
 ## Reduce dataframes by getting rid of NaN cells and dropping the Time index
 df_ews = df_ews_full.dropna().reset_index(level=2, drop=True) 
@@ -142,7 +142,7 @@ df_pspec = df_pspec.reset_index(level=2, drop=True)
 
 
 #--------------------------
-## Grid plot of all trajectories and smoothing
+## Grid plot of all trajectories
 #--------------------------
 
 # Set up frame and axes
@@ -165,8 +165,8 @@ g.map(plt.plot, 'Time', 'State variable', linewidth=1)
 axes = g.axes
 # Assign plot label
 plot_traj = g
-
-
+# Export plot
+plot_traj.savefig("../figures/empirical_series2.png", dpi=200)
 
 
 
@@ -191,6 +191,33 @@ df_ews.loc['Brachionus'][['AIC hopf']].plot(ax=axes[4],secondary_y=True)
 
 
 
+#------------------------------
+## Plots of smoothing
+#------------------------------
+
+
+# Set up frame and axes
+g = sns.FacetGrid(df_ews_full.loc['Chlorella'].reset_index(), 
+                  col='Delta',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  size=1.8
+                  )
+# Set plot title size
+plt.rc('axes', titlesize=10)
+# Plot state variable
+g.map(plt.plot, 'Time', 'State variable', linewidth=1)
+# Plot smoothing
+g.map(plt.plot, 'Time', 'Smoothing', color='tab:orange', linewidth=1)
+# Axes properties
+axes = g.axes
+# Assign plot label
+plot_smooth = g
+
+
+
+
 #---------------------------------
 ## Power spectra visualisation
 #--------------------------------
@@ -200,8 +227,8 @@ xmin = -2.5
 xmax = 2.5
 
 ## Chlorella
-
-g = sns.FacetGrid(df_pspec_chlor.reset_index(level=['Delta','Frequency']), 
+species='Chlorella'
+g = sns.FacetGrid(df_pspec.loc[species].reset_index(level=['Delta','Frequency']), 
                   col='Delta',
                   col_wrap=3,
                   sharey=False,
@@ -220,7 +247,7 @@ axes = g.axes
 for i in range(len(axes)):
     ax=axes[i]
     d=deltaValsFilt[i]
-    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_chlor.loc[d]['Empirical'].loc[xmin:xmax].dropna()))
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec.loc[species,d]['Empirical'].loc[xmin:xmax].dropna()))
     ax.set_xlim(left=xmin, right=xmax)
     ax.set_xticks([-2,-1,0,1,2])
     ax.set_title('Delta = %.2f' % deltaValsFilt[i])
@@ -228,17 +255,17 @@ for i in range(len(axes)):
     xpos=0.7
     ypos=0.9
     ax.text(xpos,ypos,
-            '$w_f$ = %.1f' % df_ews_chlor.loc[d]['AIC fold'],
+            '$w_f$ = %.1f' % df_ews.loc[species,d]['AIC fold'],
             fontsize=9,
             color='b',
             transform=ax.transAxes)  
     ax.text(xpos,ypos-0.12,
-            '$w_h$ = %.1f' % df_ews_chlor.loc[d]['AIC hopf'],
+            '$w_h$ = %.1f' % df_ews.loc[species,d]['AIC hopf'],
             fontsize=9,
             color='r',
             transform=ax.transAxes)
     ax.text(xpos,ypos-2*0.12,
-            '$w_n$ = %.1f' % df_ews_chlor.loc[d]['AIC null'],
+            '$w_n$ = %.1f' % df_ews.loc[species,d]['AIC null'],
             fontsize=9,
             color='g',
             transform=ax.transAxes)
@@ -259,8 +286,8 @@ pspec_plot_chlor=g
 
 
 ## Brachionus grid plot
-# x-axes limits
-g = sns.FacetGrid(df_pspec_brach.reset_index(level=['Delta','Frequency']), 
+species='Brachionus'
+g = sns.FacetGrid(df_pspec.loc[species].reset_index(level=['Delta','Frequency']), 
                   col='Delta',
                   col_wrap=3,
                   sharey=False,
@@ -279,7 +306,7 @@ axes = g.axes
 for i in range(len(axes)):
     ax=axes[i]
     d=deltaValsFilt[i]
-    ax.set_ylim(bottom=0, top=1.1*max(df_pspec_brach.loc[d]['Empirical'].loc[xmin:xmax].dropna()))
+    ax.set_ylim(bottom=0, top=1.1*max(df_pspec.loc[species,d]['Empirical'].loc[xmin:xmax].dropna()))
     ax.set_xlim(left=xmin, right=xmax)
     ax.set_xticks([-2,-1,0,1,2])
     ax.set_title('Delta = %.2f' % deltaValsFilt[i])
@@ -287,17 +314,17 @@ for i in range(len(axes)):
     xpos=0.7
     ypos=0.9
     ax.text(xpos,ypos,
-            '$w_f$ = %.1f' % df_ews_brach.loc[d]['AIC fold'],
+            '$w_f$ = %.1f' % df_ews.loc[species,d]['AIC fold'],
             fontsize=9,
             color='b',
             transform=ax.transAxes)  
     ax.text(xpos,ypos-0.12,
-            '$w_h$ = %.1f' % df_ews_brach.loc[d]['AIC hopf'],
+            '$w_h$ = %.1f' % df_ews.loc[species,d]['AIC hopf'],
             fontsize=9,
             color='r',
             transform=ax.transAxes)
     ax.text(xpos,ypos-2*0.12,
-            '$w_n$ = %.1f' % df_ews_brach.loc[d]['AIC null'],
+            '$w_n$ = %.1f' % df_ews.loc[species,d]['AIC null'],
             fontsize=9,
             color='g',
             transform=ax.transAxes)
@@ -327,12 +354,12 @@ pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
 
 # Export EWS data for plotting in MMA
 cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Smax','AIC fold','AIC hopf','AIC null']
-df_ews_chlor[cols].to_csv("../data_export/ews_chlor.csv")
-df_ews_brach[cols].to_csv("../data_export/ews_brach.csv")
+df_ews.loc['Chlorella'][cols].to_csv("../data_export/ews_chlor.csv")
+df_ews.loc['Brachionus'][cols].to_csv("../data_export/ews_brach.csv")
 
 # Export empirical pspec data for plotting in MMA
-df_pspec_chlor['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
-df_pspec_brach['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
+df_pspec.loc['Chlorella']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
+df_pspec.loc['Brachionus']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
 
 
 
