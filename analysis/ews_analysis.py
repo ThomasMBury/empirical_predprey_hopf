@@ -274,9 +274,10 @@ for ax in axes[::3]:
     ax.set_ylabel('Power')
     
 # Specific Y limits
-axes[1].set_ylim(top=0.004)
-#axes[3].set_ylim(top=3)
-
+for ax in axes[:4]:
+    ax.set_ylim(top=0.004)
+for ax in axes[6:9]:
+    ax.set_ylim(top=0.25)
 # Assign to plot label
 pspec_plot_chlor=g
 
