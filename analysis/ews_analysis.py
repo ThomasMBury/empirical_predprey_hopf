@@ -153,7 +153,7 @@ g = sns.FacetGrid(df_ews_full.reset_index(),
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
-                  size=1.8
+                  height=1.8
                   )
 # Set plot title size
 plt.rc('axes', titlesize=10)
@@ -202,7 +202,7 @@ g = sns.FacetGrid(df_ews_full.loc['Brachionus'].reset_index(),
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
-                  size=1.8
+                  height=1.8
                   )
 # Set plot title size
 plt.rc('axes', titlesize=10)
@@ -233,7 +233,7 @@ g = sns.FacetGrid(df_pspec.loc[species].reset_index(level=['Delta','Frequency'])
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
-                  size=1.8
+                  height=1.8
                   )
 # Plots
 plt.rc('axes', titlesize=10) 
@@ -292,7 +292,7 @@ g = sns.FacetGrid(df_pspec.loc[species].reset_index(level=['Delta','Frequency'])
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
-                  size=1.8
+                  height=1.8
                   )
 # Plots
 plt.rc('axes', titlesize=10) 
