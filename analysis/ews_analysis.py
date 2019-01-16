@@ -342,27 +342,27 @@ axes[9].set_ylim(top=0.5)
 pspec_plot_brach=g
 
 
-
-
-#-----------------------
-# Export data and plots
-#-----------------------
-    
-
-# Export pspec plots
-pspec_plot_chlor.savefig("../figures/pspec_grid_chlor.png", dpi=200)
-pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
-
-# Export EWS data for plotting in MMA
-cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Lag-10 AC','Smax','AIC fold','AIC hopf','AIC null']
-df_ews.loc['Chlorella'][cols].to_csv("../data_export/ews_chlor.csv")
-df_ews.loc['Brachionus'][cols].to_csv("../data_export/ews_brach.csv")
-
-# Export empirical pspec data for plotting in MMA
-df_pspec.loc['Chlorella']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
-df_pspec.loc['Brachionus']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
-
-
+#
+#
+##-----------------------
+## Export data and plots
+##-----------------------
+#    
+#
+## Export pspec plots
+#pspec_plot_chlor.savefig("../figures/pspec_grid_chlor.png", dpi=200)
+#pspec_plot_brach.savefig("../figures/pspec_grid_brach.png", dpi=200)
+#
+## Export EWS data for plotting in MMA
+#cols=['Variance','Coefficient of variation','Lag-1 AC','Lag-2 AC','Lag-10 AC','Smax','AIC fold','AIC hopf','AIC null']
+#df_ews.loc['Chlorella'][cols].to_csv("../data_export/ews_chlor.csv")
+#df_ews.loc['Brachionus'][cols].to_csv("../data_export/ews_brach.csv")
+#
+## Export empirical pspec data for plotting in MMA
+#df_pspec.loc['Chlorella']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_chlor.csv',index_label=['Delta','Frequency'])
+#df_pspec.loc['Brachionus']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
+#
+#
 
 
 
