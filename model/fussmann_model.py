@@ -41,53 +41,55 @@ if not os.path.exists('data_export/'+dir_name):
 # Simulation parameters
 dt = 0.01
 t0 = 0
-tmax = 180
+tmax = 200
 tburn = 100 # burn-in period
-numSims = 1
+numSims = 2
 seed = 1 # random number generation seed
-dl = 0.04 # min value of dilution rate (control)
-dh = 0.25 # max value of dilution rate (control)
+dl = 0.08 # min value of dilution rate (control)
+dh = 0.18 # max value of dilution rate (control)
 dbif = 0.15 # bifurcation value
 
 
 # EWS parameters
-dt2 = 0.5 # spacing between time-series for EWS computation
+dt2 = 1 # spacing between time-series for EWS computation
 rw = 0.25 # rolling window
 bw = 0.1 # bandwidth
 lags = [1,2,4] # autocorrelation lag times
 ews = ['var','ac','sd','cv','skew','kurt','smax','aic','cf'] # EWS to compute
 ham_length = 40 # number of data points in Hamming window
 ham_offset = 0.5 # proportion of Hamming window to offset by upon each iteration
-pspec_roll_offset = 20 # offset for rolling window when doing spectrum metrics
+pspec_roll_offset = 10 # offset for rolling window when doing spectrum metrics
 
 
 #----------------------------------
-# Simulate many (transient) realisations
-#----------------------------------
-
 # Model
-
-def de_fun_x(x,y,r,k,a,h):
-    return r*x*(1-x/k) - (a*x*y)/(1+a*h*x)
-
-def de_fun_y(x,y,e,a,h,m):
-    return e*a*x*y/(1+a*h*x) - m*y
+#----------------------------------
 
 
-
+# Function for model dynamics (variables [n,c,r,b])
+def de_fun(state, control, params):
+    '''
+    Inputs:
+        state: array of state variables [n,c,r,b]
+        control: control parameter that is to be varied
+        params: list of parameter values [ni,bc,kc,bb,kb,epsilon,m,lamda]
+    Output:
+        array of gradient vector (derivative)
+    '''
+    [n,c,r,b] = state
+    [ni,bc,kc,bb,kb,epsilon,m,lamda] = params
+    d = control
     
-# Model parameters
-sigma_x = 0.02 # noise intensity
-sigma_y = 0.02
-r = 10
-k = 1.7
-h = 0.06
-e = 0.5
-m = 5
-al = 25 # control parameter initial value
-ah = 42 # control parameter final value
-abif = 39.23 # bifurcation point (computed in Mathematica)
-
+    # Gradients for each variable to increment by
+    n_grad = d*(ni-n) - bc*n*c/(kc+n)
+    c_grad = bc*n*c/(kc+n) - bb*c*b/((kb+c)*epsilon) - d*c
+    r_grad = bb*c*r/(kb+c) - (d+m+lamda)*r
+    b_grad = bb*c*r/(kb+c) - (d+m)*b
+            
+    return np.array([n_grad, c_grad, r_grad, b_grad])
+    
+    
+   
 # System parameters
 d=1.5 # dilution rate (control parameter)
 ni=80 # nitrogen inflow concentration
@@ -98,32 +100,39 @@ kb=15   # half-saturation constant of Brachionus
 epsilon=0.25    # assimilation efficacy of Brachionus
 m=0.055 # mortality of Brachionus
 lamda=0.4   # decay of fecundity of Brachionus
+# Parameter list
+params = [ni,bc,kc,bb,kb,epsilon,m,lamda]
 
 
 # Noise parameters
+sigma_n = 0 # amplitude for N
 sigma_c = 0.02 # amplitude for Chlorella
+sigma_r = 0 # amplitude for R
 sigma_b = 0.02 # amplitude for Brachionus
 
 # Initial conditions
-n0 = 1
-c0 = 1
+n0 = 2
+c0 = 5
 r0 = 1
-b0 = 1
+b0 = 2
+# State vector
+x0 = np.array([n0,c0,r0,b0])
 
 
-# initialise DataFrame for each variable to store all realisations
-df_sims_x = pd.DataFrame([])
-df_sims_y = pd.DataFrame([])
+#--------------------------------------------
+# Simulate (transient) realisations of model
+#-------------------------------------------
 
-# Initialise arrays to store single time-series data
-t = np.arange(t0,tmax,dt)
-x = np.zeros(len(t))
-y = np.zeros(len(t))
 
-# Set up control parameter a, that increases linearly in time from al to ah
-a = pd.Series(np.linspace(al,ah,len(t)),index=t)
+
+# Initialise array to store time-series data
+t = np.arange(t0,tmax,dt) # Time array
+x = np.zeros([len(t), 4]) # State array
+
+# Set up control parameter d, that increases linearly in time from dl to dh
+d = pd.Series(np.linspace(dl,dh,len(t)),index=t)
 # Time at which bifurcation occurs
-tbif = a[a > abif].index[1]
+tbif = d[d > dbif].index[1]
 
 ## Implement Euler Maryuyama for stocahstic simulation
 
@@ -140,36 +149,47 @@ for j in range(numSims):
     
     
     # Create brownian increments (s.d. sqrt(dt))
-    dW_x_burn = np.random.normal(loc=0, scale=sigma_x*np.sqrt(dt), size = int(tburn/dt))
-    dW_x = np.random.normal(loc=0, scale=sigma_x*np.sqrt(dt), size = len(t))
+    dW_n_burn = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = int(tburn/dt))
+    dW_n = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = len(t)) 
     
-    dW_y_burn = np.random.normal(loc=0, scale=sigma_y*np.sqrt(dt), size = int(tburn/dt))
-    dW_y = np.random.normal(loc=0, scale=sigma_y*np.sqrt(dt), size = len(t))
+    dW_c_burn = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = int(tburn/dt))
+    dW_c = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = len(t))
+  
+    dW_r_burn = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = int(tburn/dt))
+    dW_r = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = len(t))
+    
+    dW_b_burn = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = int(tburn/dt))
+    dW_b = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = len(t))
+    
+    # Noise vectors
+    dW_burn = np.array([dW_n_burn,
+                        dW_c_burn,
+                        dW_r_burn,
+                        dW_b_burn]).transpose()
+    
+    dW = np.array([dW_n, dW_c, dW_r, dW_b]).transpose()
     
     # Run burn-in period on x0
-    for i in range(int(tburn/dt)):
-        x0 = x0 + de_fun_x(x0,y0,r,k,a[0],h)*dt + dW_x_burn[i]
-        y0 = y0 + de_fun_y(x0,y0,e,a[0],h,m)*dt + dW_y_burn[i]
+    for i in range(int(tburn/dt)):        
+        
+        x0 = x0 + de_fun(x0, dl, params)*dt + dW_burn[i]
         
     # Initial condition post burn-in period
     x[0]=x0
-    y[0]=y0
     
     # Run simulation
     for i in range(len(t)-1):
-        x[i+1] = x[i] + de_fun_x(x[i],y[i],r,k,a.iloc[i],h)*dt + dW_x[i]
-        y[i+1] = y[i] + de_fun_y(x[i],y[i],e,a.iloc[i],h,m)*dt + dW_y[i]
+        x[i+1] = x[i] + de_fun(x[i], d.iloc[i], params)*dt + dW[i]
         # make sure that state variable remains >= 0 
-        if x[i+1] < 0:
-            x[i+1] = 0
-        if y[i+1] < 0:
-            y[i+1] = 0
+        x[i+1] = [np.max([k,0]) for k in x[i+1]]
             
-    # Store series data in a temporary DataFrame
+    # Store series data in a DataFrame
     data = {'Realisation number': (j+1)*np.ones(len(t)),
                 'Time': t,
-                'x': x,
-                'y': y}
+                'Nitrogen': x[:,0],
+                'Chlorella': x[:,1],
+                'Reproducing Brachionus': x[:,2],
+                'Brachionus': x[:,3]}
     df_temp = pd.DataFrame(data)
     # Append to list
     list_traj_append.append(df_temp)
@@ -181,22 +201,26 @@ df_traj = pd.concat(list_traj_append)
 df_traj.set_index(['Realisation number','Time'], inplace=True)
 
 
+
+
+
 #----------------------
-## Execute ews_compute for each realisation in x and y
+## Execute ews_compute for each realisation and each variable
 #---------------------
 
 # Filter time-series to have time-spacing dt2
 df_traj_filt = df_traj.loc[::int(dt2/dt)]
 
-# set up a list to store output dataframes from ews_compute- we will concatenate them at the end
+# Set up a list to store output dataframes from ews_compute
+# We will concatenate them at the end
 appended_ews = []
 appended_pspec = []
 
 # loop through realisation number
 print('\nBegin EWS computation\n')
 for i in range(numSims):
-    # loop through variable
-    for var in ['x','y']:
+    # loop through sate variable
+    for var in ['Chlorella', 'Brachionus']:
         
         ews_dic = ews_compute(df_traj_filt.loc[i+1][var], 
                           roll_window = rw, 
@@ -235,11 +259,11 @@ df_ews = pd.concat(appended_ews).reset_index().set_index(['Realisation number','
 df_pspec = pd.concat(appended_pspec).reset_index().set_index(['Realisation number','Variable','Time','Frequency'])
 
 
-# Compute ensemble statistics of EWS over all realisations (mean, pm1 s.d.)
-ews_names = ['Variance', 'Lag-1 AC', 'Lag-2 AC', 'Lag-4 AC', 'AIC fold', 'AIC hopf', 'AIC null', 'Coherence factor']
-
-df_ews_means = df_ews[ews_names].mean(level='Time')
-df_ews_deviations = df_ews[ews_names].std(level='Time')
+## Compute ensemble statistics of EWS over all realisations (mean, pm1 s.d.)
+#ews_names = ['Variance', 'Lag-1 AC', 'Lag-2 AC', 'Lag-4 AC', 'AIC fold', 'AIC hopf', 'AIC null', 'Coherence factor']
+#
+#df_ews_means = df_ews[ews_names].mean(level='Time')
+#df_ews_deviations = df_ews[ews_names].std(level='Time')
 
 
 
@@ -249,7 +273,7 @@ df_ews_deviations = df_ews[ews_names].std(level='Time')
 
 # Realisation number to plot
 plot_num = 1
-var = 'y'
+var = 'Chlorella'
 ## Plot of trajectory, smoothing and EWS of var (x or y)
 fig1, axes = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(6,6))
 df_ews.loc[plot_num,var][['State variable','Smoothing']].plot(ax=axes[0],
@@ -269,7 +293,7 @@ def plot_pspec_grid(tVals, plot_num, var):
                   col_wrap=3,
                   sharey=False,
                   aspect=1.5,
-                  size=1.8
+                  height=1.8
                   )
 
     g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=2)
@@ -290,8 +314,8 @@ def plot_pspec_grid(tVals, plot_num, var):
 #  Choose time values at which to display power spectrum
 t_display = df_pspec.index.levels[2][::1].values
 
-plot_pspec_x = plot_pspec_grid(t_display,1,'x')
-plot_pspec_y = plot_pspec_grid(t_display,1,'y')
+plot_pspec_x = plot_pspec_grid(t_display,1,'Chlorella')
+#plot_pspec_y = plot_pspec_grid(t_display,1,'y')
 
 
 ##------------------------------------
