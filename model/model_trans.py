@@ -3,9 +3,10 @@
 """
 Created on Wed Jan 16, 2019
 
-@author: Thomas Bury
+@author: ThomasMBury
 
 Code to simulate predator-prey model for Fussmann study (Science 2000)
+Transient simulations (vary the dilution rate over time)
 
 """
 
