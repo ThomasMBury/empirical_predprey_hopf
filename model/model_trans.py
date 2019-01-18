@@ -144,7 +144,7 @@ np.random.seed(seed)
 # Initialise a list to collect trajectories
 list_traj_append = []
 
-# loop over simulations
+# Loop over simulations
 print('\nBegin simulations \n')
 for j in range(numSims):
     
