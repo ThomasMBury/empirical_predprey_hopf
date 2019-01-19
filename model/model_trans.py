@@ -10,17 +10,30 @@ Transient simulations (vary the dilution rate over time)
 
 """
 
-# import python libraries
+#------------------------
+# Import modules
+#–----------------------
+
+# Default python modules
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# import EWS function
+# EWS module
 import sys
 sys.path.append('../../early_warnings')
 from ews_compute import ews_compute
+
+
+#----------------------
+# Useful functions
+#-----------------------
+
+# Apply operation to column of DataFrame in place
+def apply_inplace(df, field, fun):
+    return pd.concat([df.drop(field, axis=1), df[field].apply(fun)], axis=1)
 
 
 #---------------------

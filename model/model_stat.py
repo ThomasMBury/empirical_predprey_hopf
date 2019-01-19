@@ -12,17 +12,32 @@ Stationary simulations (fixed dilution rate)
 
 
 
-# import python libraries
+#------------------------
+# Import modules
+#–----------------------
+
+# Default python modules
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# import EWS function
+# EWS module
 import sys
 sys.path.append('../../early_warnings')
 from ews_compute import ews_compute
+
+
+#----------------------
+# Useful functions
+#-----------------------
+
+# Apply operation to column of DataFrame in place
+def apply_inplace(df, field, fun):
+    """ Apply function to a column of a DataFrame in place."""
+    return pd.concat([df.drop(field, axis=1), df[field].apply(fun)], axis=1)
+
 
 
 #---------------------
@@ -30,7 +45,7 @@ from ews_compute import ews_compute
 #–----------------------
 
 # Name of directory within data_export
-dir_name = 'ews_stat_2'
+dir_name = 'ews_stat_sweep'
 
 if not os.path.exists('data_export/'+dir_name):
     os.makedirs('data_export/'+dir_name)
@@ -60,7 +75,7 @@ dh = 1.6 # high delta value
 dt2 = 1 # spacing between time-series for EWS computation
 rw = 1 # rolling window (compute EWS using full time-series)
 bw = 1 # bandwidth (take the whole dataset as stationary)
-lags = [1,2,4] # autocorrelation lag times
+lags = [1,2,3,6] # autocorrelation lag times
 ews = ['var','ac','sd','cv','skew','kurt','smax','aic','cf'] # EWS to compute
 ham_length = 40 # number of data points in Hamming window
 ham_offset = 0.5 # proportion of Hamming window to offset by upon each iteration
@@ -138,90 +153,112 @@ b0 = 2
 
 
 
+#
+### Implement Euler Maryuyama for stocahstic simulation
+#
+#
+## Set seed
+#np.random.seed(seed)
+#
+## Initialise a list to collect trajectories
+#list_traj_append = []
+#
+## loop over delta values
+#print('\nBegin simulations \n')
+#for d in deltaVals:
+#    
+#    # Initialise array to store time-series data
+#    t = np.arange(t0,tmax,dt) # Time array
+#    x = np.zeros([len(t), 4]) # State array
+#
+#    
+#    # Create brownian increments (s.d. sqrt(dt))
+#    dW_n_burn = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = int(tburn/dt))
+#    dW_n = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = len(t)) 
+#    
+#    dW_c_burn = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = int(tburn/dt))
+#    dW_c = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = len(t))
+#  
+#    dW_r_burn = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = int(tburn/dt))
+#    dW_r = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = len(t))
+#    
+#    dW_b_burn = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = int(tburn/dt))
+#    dW_b = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = len(t))
+#    
+#    # Noise vectors
+#    dW_burn = np.array([dW_n_burn,
+#                        dW_c_burn,
+#                        dW_r_burn,
+#                        dW_b_burn]).transpose()
+#    
+#    dW = np.array([dW_n, dW_c, dW_r, dW_b]).transpose()
+# 
+#    # IC as a state vector
+#    x0 = np.array([n0,c0,r0,b0])
+#    
+#    # Run burn-in period on initial condition
+#    for i in range(int(tburn/dt)):
+#        # Update with Euler Maruyama
+#        x0 = x0 + de_fun(x0, d, params)*dt + dW_burn[i]
+#        # Make sure that state variable remains >= 0 
+#        x0 = [np.max([k,0]) for k in x0]
+#        
+#        
+#    # Initial condition post burn-in period
+#    x[0]=x0
+#    
+#    # Run simulation
+#    for i in range(len(t)-1):
+#        x[i+1] = x[i] + de_fun(x[i], d, params)*dt + dW[i]
+#        # make sure that state variable remains >= 0 
+#        x[i+1] = [np.max([k,0]) for k in x[i+1]]
+#            
+#    # Store series data in a DataFrame
+#    data = {'Delta': d,
+#                'Time': t,
+#                'Nitrogen': x[:,0],
+#                'Chlorella': x[:,1],
+#                'Reproducing Brachionus': x[:,2],
+#                'Brachionus': x[:,3]}
+#    df_temp = pd.DataFrame(data)
+#    # Append to list
+#    list_traj_append.append(df_temp)
+#    
+#    print('Simulation with d='+str(d)+' complete')
+#
+##  Concatenate DataFrame from each realisation
+#df_traj = pd.concat(list_traj_append)
+#df_traj.set_index(['Delta','Time'], inplace=True)
+#
+#
+## Coarsen time-series to have spacing dt2 (for EWS computation)
+#df_traj_filt = df_traj.loc[::int(dt2/dt)]
+#
+#
+## Make units of Chlor and Brach consistent with Fussmann experiments
+#
+#nC = 50000/1000000 # conversion factor to 10^6 cells/ml of Chlorella
+#nB = 5 # conversion factor to females/ml of Brachiouns
+#
+#df_traj_filt = apply_inplace(df_traj_filt, 'Chlorella',
+#                             lambda x: nC*x)
+#df_traj_filt = apply_inplace(df_traj_filt, 'Reproducing Brachionus',
+#                             lambda x: nB*x)
+#df_traj_filt = apply_inplace(df_traj_filt, 'Brachionus',
+#                             lambda x: nB*x)
+#
+#
+## Export simulation data to SD Memory
+#df_traj_filt.to_csv('/Volumes/SDMemory/Datasets/fussmann/temp.csv')
+#
+#
 
-## Implement Euler Maryuyama for stocahstic simulation
+# Import simulation data to SD Memory
+df_traj_filt = pd.read_csv('/Volumes/SDMemory/Datasets/fussmann/temp.csv')
+df_traj_filt.set_index(['Delta','Time'], inplace=True)
 
-
-# Set seed
-np.random.seed(seed)
-
-# Initialise a list to collect trajectories
-list_traj_append = []
-
-# loop over delta values
-print('\nBegin simulations \n')
-for d in deltaVals:
-    
-    # Initialise array to store time-series data
-    t = np.arange(t0,tmax,dt) # Time array
-    x = np.zeros([len(t), 4]) # State array
-
-    
-    # Create brownian increments (s.d. sqrt(dt))
-    dW_n_burn = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = int(tburn/dt))
-    dW_n = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = len(t)) 
-    
-    dW_c_burn = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = int(tburn/dt))
-    dW_c = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = len(t))
-  
-    dW_r_burn = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = int(tburn/dt))
-    dW_r = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = len(t))
-    
-    dW_b_burn = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = int(tburn/dt))
-    dW_b = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = len(t))
-    
-    # Noise vectors
-    dW_burn = np.array([dW_n_burn,
-                        dW_c_burn,
-                        dW_r_burn,
-                        dW_b_burn]).transpose()
-    
-    dW = np.array([dW_n, dW_c, dW_r, dW_b]).transpose()
- 
-    # IC as a state vector
-    x0 = np.array([n0,c0,r0,b0])
-    
-    # Run burn-in period on initial condition
-    for i in range(int(tburn/dt)):
-        # Update with Euler Maruyama
-        x0 = x0 + de_fun(x0, d, params)*dt + dW_burn[i]
-        # Make sure that state variable remains >= 0 
-        x0 = [np.max([k,0]) for k in x0]
-        
-        
-    # Initial condition post burn-in period
-    x[0]=x0
-    
-    # Run simulation
-    for i in range(len(t)-1):
-        x[i+1] = x[i] + de_fun(x[i], d, params)*dt + dW[i]
-        # make sure that state variable remains >= 0 
-        x[i+1] = [np.max([k,0]) for k in x[i+1]]
-            
-    # Store series data in a DataFrame
-    data = {'Delta': d,
-                'Time': t,
-                'Nitrogen': x[:,0],
-                'Chlorella': x[:,1],
-                'Reproducing Brachionus': x[:,2],
-                'Brachionus': x[:,3]}
-    df_temp = pd.DataFrame(data)
-    # Append to list
-    list_traj_append.append(df_temp)
-    
-    print('Simulation with d='+str(d)+' complete')
-
-#  Concatenate DataFrame from each realisation
-df_traj = pd.concat(list_traj_append)
-df_traj.set_index(['Delta','Time'], inplace=True)
-
-
-# Coarsen time-series to have spacing dt2 (for EWS computation)
-df_traj_filt = df_traj.loc[::int(dt2/dt)]
-
-
-
-
+# Delta Values
+deltaVals = np.array(df_traj_filt.index.levels[0])
 
 
 #----------------------
@@ -267,8 +304,7 @@ for d in deltaVals:
         appended_pspec.append(df_pspec_temp)
         
     # Print status every realisation
-    if np.remainder(i+1,1)==0:
-        print('EWS for delta =  '+str(d)+' complete')
+    print('EWS for delta =  '+str(d)+' complete')
 
 
 # Concatenate EWS DataFrames. Index [Delta, Variable, Time]
@@ -469,8 +505,14 @@ pspec_plot_brach=g
 
 
 ## Export EWS data
-# EWS DataFrame (includes trajectories)
-df_ews.to_csv('data_export/'+dir_name+'/ews_delta.csv')
+
+# Chlorella ews
+df_ews_chlor = df_ews.loc['Chlorella']
+df_ews_chlor.to_csv('data_export/'+dir_name+'/ews_chlor.csv')
+
+# Brachionus EWS data
+df_ews_brach = df_ews.loc['Brachionus']
+df_ews_brach.to_csv('data_export/'+dir_name+'/ews_brach.csv')
 
 
 
