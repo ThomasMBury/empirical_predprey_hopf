@@ -30,7 +30,7 @@ from ews_compute import ews_compute
 #–----------------------
 
 # Name of directory within data_export
-dir_name = 'ews_stat'
+dir_name = 'ews_stat_2'
 
 if not os.path.exists('data_export/'+dir_name):
     os.makedirs('data_export/'+dir_name)
@@ -470,10 +470,7 @@ pspec_plot_brach=g
 
 ## Export EWS data
 # EWS DataFrame (includes trajectories)
-df_ews.loc[:5].to_csv('data_export/'+dir_name+'/ews_delta.csv')
-# Power spectrum DataFrame (only empirical values)
-df_pspec.loc[:5,'Empirical'].dropna().to_csv('data_export/'+dir_name+'/pspecs.csv',
-            header=True)
+df_ews.to_csv('data_export/'+dir_name+'/ews_delta.csv')
 
 
 
