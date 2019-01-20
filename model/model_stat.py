@@ -45,7 +45,7 @@ def apply_inplace(df, field, fun):
 #–----------------------
 
 # Name of directory within data_export
-dir_name = 'ews_stat_sweep'
+dir_name = 'ews_stat_sweep_long'
 
 if not os.path.exists('data_export/'+dir_name):
     os.makedirs('data_export/'+dir_name)
@@ -61,12 +61,12 @@ if not os.path.exists('data_export/'+dir_name):
 # Simulation parameters
 dt = 0.01
 t0 = 0
-tmax = 2000 # make large (to get idealised statistics from stationary distribution)
+tmax = 4000 # make large (to get idealised statistics from stationary distribution)
 tburn = 500 # burn-in period
 seed = 1 # random number generation seed
 dbif1 = 0.150983 # first Hopf bifurcation (from Mma bif file)
 dbif2 = 0.969538 # second Hopf bifurcation (from Mma bif file)
-dl = 0.01 # low delta value
+dl = 0.005 # low delta value
 dh = 1.6 # high delta value
 
 
@@ -126,7 +126,7 @@ lamda=0.4   # decay of fecundity of Brachionus
 params = [ni,bc,kc,bb,kb,epsilon,m,lamda]
 
 # Control parameter values
-deltaVals = np.arange(dl, dh, 0.01)
+deltaVals = np.arange(dl, dh, 0.005)
 
 
 # Noise parameters
@@ -153,105 +153,105 @@ b0 = 2
 
 
 
-#
-### Implement Euler Maryuyama for stocahstic simulation
-#
-#
-## Set seed
-#np.random.seed(seed)
-#
-## Initialise a list to collect trajectories
-#list_traj_append = []
-#
-## loop over delta values
-#print('\nBegin simulations \n')
-#for d in deltaVals:
-#    
-#    # Initialise array to store time-series data
-#    t = np.arange(t0,tmax,dt) # Time array
-#    x = np.zeros([len(t), 4]) # State array
-#
-#    
-#    # Create brownian increments (s.d. sqrt(dt))
-#    dW_n_burn = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = int(tburn/dt))
-#    dW_n = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = len(t)) 
-#    
-#    dW_c_burn = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = int(tburn/dt))
-#    dW_c = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = len(t))
-#  
-#    dW_r_burn = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = int(tburn/dt))
-#    dW_r = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = len(t))
-#    
-#    dW_b_burn = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = int(tburn/dt))
-#    dW_b = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = len(t))
-#    
-#    # Noise vectors
-#    dW_burn = np.array([dW_n_burn,
-#                        dW_c_burn,
-#                        dW_r_burn,
-#                        dW_b_burn]).transpose()
-#    
-#    dW = np.array([dW_n, dW_c, dW_r, dW_b]).transpose()
-# 
-#    # IC as a state vector
-#    x0 = np.array([n0,c0,r0,b0])
-#    
-#    # Run burn-in period on initial condition
-#    for i in range(int(tburn/dt)):
-#        # Update with Euler Maruyama
-#        x0 = x0 + de_fun(x0, d, params)*dt + dW_burn[i]
-#        # Make sure that state variable remains >= 0 
-#        x0 = [np.max([k,0]) for k in x0]
-#        
-#        
-#    # Initial condition post burn-in period
-#    x[0]=x0
-#    
-#    # Run simulation
-#    for i in range(len(t)-1):
-#        x[i+1] = x[i] + de_fun(x[i], d, params)*dt + dW[i]
-#        # make sure that state variable remains >= 0 
-#        x[i+1] = [np.max([k,0]) for k in x[i+1]]
-#            
-#    # Store series data in a DataFrame
-#    data = {'Delta': d,
-#                'Time': t,
-#                'Nitrogen': x[:,0],
-#                'Chlorella': x[:,1],
-#                'Reproducing Brachionus': x[:,2],
-#                'Brachionus': x[:,3]}
-#    df_temp = pd.DataFrame(data)
-#    # Append to list
-#    list_traj_append.append(df_temp)
-#    
-#    print('Simulation with d='+str(d)+' complete')
-#
-##  Concatenate DataFrame from each realisation
-#df_traj = pd.concat(list_traj_append)
-#df_traj.set_index(['Delta','Time'], inplace=True)
-#
-#
-## Coarsen time-series to have spacing dt2 (for EWS computation)
-#df_traj_filt = df_traj.loc[::int(dt2/dt)]
-#
-#
-## Make units of Chlor and Brach consistent with Fussmann experiments
-#
-#nC = 50000/1000000 # conversion factor to 10^6 cells/ml of Chlorella
-#nB = 5 # conversion factor to females/ml of Brachiouns
-#
-#df_traj_filt = apply_inplace(df_traj_filt, 'Chlorella',
-#                             lambda x: nC*x)
-#df_traj_filt = apply_inplace(df_traj_filt, 'Reproducing Brachionus',
-#                             lambda x: nB*x)
-#df_traj_filt = apply_inplace(df_traj_filt, 'Brachionus',
-#                             lambda x: nB*x)
-#
-#
-## Export simulation data to SD Memory
-#df_traj_filt.to_csv('/Volumes/SDMemory/Datasets/fussmann/temp.csv')
-#
-#
+
+## Implement Euler Maryuyama for stocahstic simulation
+
+
+# Set seed
+np.random.seed(seed)
+
+# Initialise a list to collect trajectories
+list_traj_append = []
+
+# loop over delta values
+print('\nBegin simulations \n')
+for d in deltaVals:
+    
+    # Initialise array to store time-series data
+    t = np.arange(t0,tmax,dt) # Time array
+    x = np.zeros([len(t), 4]) # State array
+
+    
+    # Create brownian increments (s.d. sqrt(dt))
+    dW_n_burn = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = int(tburn/dt))
+    dW_n = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = len(t)) 
+    
+    dW_c_burn = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = int(tburn/dt))
+    dW_c = np.random.normal(loc=0, scale=sigma_c*np.sqrt(dt), size = len(t))
+  
+    dW_r_burn = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = int(tburn/dt))
+    dW_r = np.random.normal(loc=0, scale=sigma_r*np.sqrt(dt), size = len(t))
+    
+    dW_b_burn = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = int(tburn/dt))
+    dW_b = np.random.normal(loc=0, scale=sigma_b*np.sqrt(dt), size = len(t))
+    
+    # Noise vectors
+    dW_burn = np.array([dW_n_burn,
+                        dW_c_burn,
+                        dW_r_burn,
+                        dW_b_burn]).transpose()
+    
+    dW = np.array([dW_n, dW_c, dW_r, dW_b]).transpose()
+ 
+    # IC as a state vector
+    x0 = np.array([n0,c0,r0,b0])
+    
+    # Run burn-in period on initial condition
+    for i in range(int(tburn/dt)):
+        # Update with Euler Maruyama
+        x0 = x0 + de_fun(x0, d, params)*dt + dW_burn[i]
+        # Make sure that state variable remains >= 0 
+        x0 = [np.max([k,0]) for k in x0]
+        
+        
+    # Initial condition post burn-in period
+    x[0]=x0
+    
+    # Run simulation
+    for i in range(len(t)-1):
+        x[i+1] = x[i] + de_fun(x[i], d, params)*dt + dW[i]
+        # make sure that state variable remains >= 0 
+        x[i+1] = [np.max([k,0]) for k in x[i+1]]
+            
+    # Store series data in a DataFrame
+    data = {'Delta': d,
+                'Time': t,
+                'Nitrogen': x[:,0],
+                'Chlorella': x[:,1],
+                'Reproducing Brachionus': x[:,2],
+                'Brachionus': x[:,3]}
+    df_temp = pd.DataFrame(data)
+    # Append to list
+    list_traj_append.append(df_temp)
+    
+    print('Simulation with d='+str(d)+' complete')
+
+#  Concatenate DataFrame from each realisation
+df_traj = pd.concat(list_traj_append)
+df_traj.set_index(['Delta','Time'], inplace=True)
+
+
+# Coarsen time-series to have spacing dt2 (for EWS computation)
+df_traj_filt = df_traj.loc[::int(dt2/dt)]
+
+
+# Make units of Chlor and Brach consistent with Fussmann experiments
+
+nC = 50000/1000000 # conversion factor to 10^6 cells/ml of Chlorella
+nB = 5 # conversion factor to females/ml of Brachiouns
+
+df_traj_filt = apply_inplace(df_traj_filt, 'Chlorella',
+                             lambda x: nC*x)
+df_traj_filt = apply_inplace(df_traj_filt, 'Reproducing Brachionus',
+                             lambda x: nB*x)
+df_traj_filt = apply_inplace(df_traj_filt, 'Brachionus',
+                             lambda x: nB*x)
+
+
+# Export simulation data to SD Memory
+df_traj_filt.to_csv('/Volumes/SDMemory/Datasets/fussmann/temp.csv')
+
+
 
 # Import simulation data to SD Memory
 df_traj_filt = pd.read_csv('/Volumes/SDMemory/Datasets/fussmann/temp.csv')
