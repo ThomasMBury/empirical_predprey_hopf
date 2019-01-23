@@ -254,7 +254,7 @@ b0 = 2
 
 
 # Import simulation data from SD Memory
-df_traj_filt = pd.read_csv('/Volumes/SDMemory/Datasets/fussmann/temp.csv')
+df_traj_filt = pd.read_csv('/Volumes/SDMemory/Datasets/fussmann/sim_data.csv')
 df_traj_filt.set_index(['Delta','Time'], inplace=True)
 
 # Delta Values
@@ -515,8 +515,16 @@ df_ews_brach = df_ews.loc['Brachionus']
 df_ews_brach.to_csv('data_export/'+dir_name+'/ews_brach.csv')
 
 
+## Export power spectrum (empirical data)
+
+# Chlorella pspecs
+df_pspec_chlor = df_pspec.loc['Chlorella','Empirical'].dropna()
+df_pspec_chlor.to_csv('data_export/'+dir_name+'/pspec_chlor.csv')
 
 
+# Brachionus pspecs
+df_pspec_brach = df_pspec.loc['Brachionus', 'Empirical'].dropna()
+df_pspec_brach.to_csv('data_export/'+dir_name+'/pspec_brach.csv')
 
 
 
