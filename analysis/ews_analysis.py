@@ -238,9 +238,10 @@ g = sns.FacetGrid(df_pspec.loc[species].reset_index(level=['Delta','Frequency'])
 # Plots
 plt.rc('axes', titlesize=10) 
 g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=1)
+g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit fold', color='b', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidth=1)
-g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
+
 # Axes properties
 axes = g.axes
 # Global axes properties
@@ -297,9 +298,10 @@ g = sns.FacetGrid(df_pspec.loc[species].reset_index(level=['Delta','Frequency'])
 # Plots
 plt.rc('axes', titlesize=10) 
 g.map(plt.plot, 'Frequency', 'Empirical', color='k', linewidth=1)
+g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit fold', color='b', linestyle='dashed', linewidth=1)
 g.map(plt.plot, 'Frequency', 'Fit hopf', color='r', linestyle='dashed', linewidth=1)
-g.map(plt.plot, 'Frequency', 'Fit null', color='g', linestyle='dashed', linewidth=1)
+
 # Axes properties
 axes = g.axes
 # Global axes properties
@@ -342,7 +344,7 @@ axes[9].set_ylim(top=0.5)
 pspec_plot_brach=g
 
 
-#
+
 #
 ##-----------------------
 ## Export data and plots
@@ -363,7 +365,7 @@ pspec_plot_brach=g
 #df_pspec.loc['Brachionus']['Empirical'].dropna().to_frame().to_csv('../data_export/pspec_brach.csv',index_label=['Delta','Frequency'])
 #
 #
-
+#
 
 
 
