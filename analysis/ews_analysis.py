@@ -103,13 +103,15 @@ for species in ['Chlorella','Brachionus']:
         # plug series into ews_compute - no rolling window (rw=1)
         ews_dic = ews_compute(series,
                              roll_window = 1,
-                             smooth = True,
+                             smooth = 'Lowess',
+                             span = 80,
                              band_width = band_width,
                              ews = ews,
                              lag_times = lag_times,
                              ham_length = ham_length,
                              ham_offset = ham_offset,
-                             w_cutoff = w_cutoff
+                             w_cutoff = w_cutoff,
+                             sweep = False
                              )
         # DataFrame of EWS metrics
         df_ews_temp = ews_dic['EWS metrics']

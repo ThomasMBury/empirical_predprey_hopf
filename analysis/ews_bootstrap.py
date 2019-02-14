@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 # Import EWS function
 import sys
@@ -30,7 +31,7 @@ from roll_bootstrap import roll_bootstrap, mean_ci
 
 
 # Name of directory within data_export
-dir_name = 'bootstrap_block20_span05'
+dir_name = 'bootstrap_block40_span80_ham40_sweep'
 
 if not os.path.exists('../data_export/'+dir_name):
     os.makedirs('../data_export/'+dir_name)
@@ -41,20 +42,19 @@ if not os.path.exists('../data_export/'+dir_name):
 #–-----------------------
 
 # EWS computation parameters
-span = 0.5 # span used for Loess filtering of time-series
+span = 80 # span used for Loess filtering of time-series (number of days)
 ham_length = 40 # length of Hamming window
 ham_offset = 0.5 # offset of Hamming windows
 w_cutoff = 0.8 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic'] # EWS to compute
 lags = [1,2,10] # lag times for autocorrelation computation (lag of 10 to show decreasing AC where tau=T/2)
-sweep = False # whether to sweep over initialisation parameters during AIC fitting
+sweep = True # whether to sweep over initialisation parameters during AIC fitting
 
 
 # Bootstrapping parameters
 block_size = 40 # size of blocks used to resample time-series
 bs_type = 'Stationary' # type of bootstrapping
-n_samples = 2 # number of bootstrapping samples to take
-roll_offset = 20 # rolling window offset (note: don't need a rolling window for Fussmann data)
+n_samples = 20 # number of bootstrapping samples to take
 
 
 
