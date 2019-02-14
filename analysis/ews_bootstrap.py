@@ -26,6 +26,9 @@ from roll_bootstrap import roll_bootstrap, mean_ci
 
 
 
+
+
+
 # Name of directory within data_export
 dir_name = 'bootstrap_block20_span05'
 
@@ -239,14 +242,31 @@ df_pspec_boot.sort_index(inplace=True)
 
 
 
-#--------------------------
-# Compute confidence intervals of EWS
-#-----------------------------
+#---------------------------------------
+# Compute mean and confidence intervals
+#–----------------------------------------
 
 
+# Relevant EWS to work with
+ews_export = ['Variance','Lag-1 AC','Lag-2 AC','Lag-10 AC','AIC fold',
+              'AIC hopf', 'AIC null', 'Smax']
 
 
+# List to store confidence intervals for each EWS
+list_intervals = []
 
+# Loop through each EWS
+for i in range(len(ews_export)):
+    
+    # Compute mean, and confidence intervals
+    series_intervals = df_ews_boot[ews_export[i]].groupby(['Dilution rate','Species']).apply(mean_ci, alpha=0.95)
+    
+    # Add to the list
+    list_intervals.append(series_intervals)
+    
+# Concatenate the series
+df_intervals = pd.concat(list_intervals, axis=1)
+    
 
 
 
@@ -280,9 +300,10 @@ df_pspec_boot.loc[0.04, 'Chlorella']['Empirical'].unstack(level='Sample').plot()
     
 
 # EWS data
-ews_export = ['Variance','Lag-1 AC','Lag-2 AC','Lag-10 AC','Smax','AIC fold','AIC hopf','AIC null']
 df_ews_boot[ews_export].to_csv('../data_export/'+dir_name+'/ews.csv')
 
+# EWS confidnece intervals over samples
+df_intervals.to_csv('../data_export/'+dir_name+'/ews_intervals.csv')
 
 # Export empirical pspec data for plotting in MMA
 df_pspec_boot.to_csv('../data_export/'+dir_name+'/pspec.csv')
