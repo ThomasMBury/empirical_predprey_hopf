@@ -1,5 +1,8 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Mon Feb 11 2019
 
@@ -31,13 +34,13 @@ from roll_bootstrap import roll_bootstrap, mean_ci
 
 
 # Name of directory within data_export
-dir_name = 'bootstrap_block40_span80_ham40_sweep'
+dir_name = 'bootstrap_test'
 
 if not os.path.exists('../data_export/'+dir_name):
     os.makedirs('../data_export/'+dir_name)
 
 
-#-----------------------
+#------------------------
 # Parameters
 #–-----------------------
 
@@ -48,13 +51,13 @@ ham_offset = 0.5 # offset of Hamming windows
 w_cutoff = 0.8 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic'] # EWS to compute
 lags = [1,2,10] # lag times for autocorrelation computation (lag of 10 to show decreasing AC where tau=T/2)
-sweep = True # whether to sweep over initialisation parameters during AIC fitting
+sweep = False # whether to sweep over initialisation parameters during AIC fitting
 
 
 # Bootstrapping parameters
 block_size = 40 # size of blocks used to resample time-series
-bs_type = 'Stationary' # type of bootstrapping
-n_samples = 20 # number of bootstrapping samples to take
+bs_type = 'Circular' # type of bootstrapping
+n_samples = 10 # number of bootstrapping samples to take
 
 
 
@@ -150,6 +153,9 @@ for d in deltaValsFilt:
         # Add DF to list
         list_df_samples.append(df_samples_temp)
         
+    # Print update
+    print('Bootstrap samples for d = %.2f complete' % d)
+        
 # Concatenate dataframes of samples
 df_samples = pd.concat(list_df_samples)
 
@@ -199,7 +205,8 @@ for d in deltaValsFilt:
                               upto='Full',
                               sweep=sweep,
                               ham_length=ham_length,
-                              ham_offset=ham_offset)
+                              ham_offset=ham_offset,
+                              w_cutoff=w_cutoff)
             
             ## The DataFrame of EWS
             df_ews_temp = ews_dic['EWS metrics']
@@ -279,16 +286,98 @@ df_intervals = pd.concat(list_intervals, axis=1)
 #----------------
 
 
-# Smax
-df_ews_boot.xs(('Chlorella'), level=('Species'))['Smax'].unstack(level='Sample').plot()
+## Smax
+#df_ews_boot.xs(('Chlorella'), level=('Species'))['Smax'].unstack(level='Sample').plot()
+#
+## AIC hopf
+#df_ews_boot.xs(('Chlorella'), level=('Species'))['AIC hopf'].unstack(level='Sample').plot()
 
-# AIC hopf
-df_ews_boot.xs(('Chlorella'), level=('Species'))['AIC hopf'].unstack(level='Sample').plot()
+# Organise DataFrame for plotting with seaborn
+df_plot = df_ews_boot.xs('Chlorella', level=1).reset_index()
+# All AIC Hopf samples
+g1=sns.relplot(data=df_plot, x='Dilution rate', y='AIC hopf', kind='line', hue='Sample')
+# Confidence intervals of AIC Hopf
+g2=sns.relplot(data=df_plot, x='Dilution rate', y='AIC hopf',kind='line')
 
-# Power spectrum
-df_pspec_boot.loc[0.04, 'Brachionus']['Empirical'].unstack(level='Sample').plot()
 
-df_pspec_boot.loc[0.04, 'Chlorella']['Empirical'].unstack(level='Sample').plot()
+
+
+#-------------------------------
+# Power spectra visualisation
+#–-----------------------------
+
+# Limits for x-axis
+xmin = -3.2
+xmax = 3.2
+
+## Chlorella
+species='Chlorella'
+g = sns.FacetGrid(df_pspec_boot.xs(species,level=1).reset_index(),
+                  col='Dilution rate',
+                  hue='Sample',
+                  palette='Set1',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  height=1.8
+                  )
+
+
+
+# Plots
+plt.rc('axes', titlesize=10) 
+g.map(plt.plot, 'Frequency', 'Empirical', linewidth=1)
+
+
+
+
+## Brachionus
+species='Brachionus'
+g = sns.FacetGrid(df_pspec_boot.xs(species,level=1).reset_index(),
+                  col='Dilution rate',
+                  hue='Sample',
+                  palette='Set1',
+                  col_wrap=3,
+                  sharey=False,
+                  aspect=1.5,
+                  height=1.8
+                  )
+
+
+
+
+
+# Plots
+plt.rc('axes', titlesize=10) 
+g.map(plt.plot, 'Frequency', 'Empirical', linewidth=1)
+
+
+## Axes properties
+#axes = g.axes
+## Global axes properties
+#for i in range(len(axes)):
+#    ax=axes[i]
+#    d=deltaValsFilt[i]
+#    ax.set_ylim(bottom=0, top=1.1*df_pspec_boot.xs(species,level=1)['Empirical'].loc[(slice(None),slice(None),slice(xmin,xmax))].max())
+#    ax.set_xlim(left=xmin, right=xmax)
+#    ax.set_xticks([-2,-1,0,1,2])
+#    ax.set_title('Delta = %.2f' % deltaValsFilt[i])
+#
+#
+## Y labels
+#for ax in axes[::3]:
+#    ax.set_ylabel('Power')
+#    
+## Specific Y limits
+#for ax in axes[:4]:
+#    ax.set_ylim(top=0.004)
+#for ax in axes[6:9]:
+#    ax.set_ylim(top=0.25)
+## Assign to plot label
+#pspec_plot_chlor=g
+
+
+
 
 
 
