@@ -34,7 +34,7 @@ from roll_bootstrap import roll_bootstrap, mean_ci
 
 
 # Name of directory within data_export
-dir_name = 'bootstrap_test'
+dir_name = 'bootstrap_block40_ham40_sweep'
 
 if not os.path.exists('../data_export/'+dir_name):
     os.makedirs('../data_export/'+dir_name)
@@ -48,7 +48,7 @@ if not os.path.exists('../data_export/'+dir_name):
 span = 80 # span used for Loess filtering of time-series (number of days)
 ham_length = 40 # length of Hamming window
 ham_offset = 0.5 # offset of Hamming windows
-w_cutoff = 0.8 # cutoff of higher frequencies
+w_cutoff = 1 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic'] # EWS to compute
 lags = [1,2,10] # lag times for autocorrelation computation (lag of 10 to show decreasing AC where tau=T/2)
 sweep = False # whether to sweep over initialisation parameters during AIC fitting
@@ -57,7 +57,7 @@ sweep = False # whether to sweep over initialisation parameters during AIC fitti
 # Bootstrapping parameters
 block_size = 40 # size of blocks used to resample time-series
 bs_type = 'Circular' # type of bootstrapping
-n_samples = 10 # number of bootstrapping samples to take
+n_samples = 100 # number of bootstrapping samples to take
 
 
 
@@ -281,9 +281,9 @@ df_intervals = pd.concat(list_intervals, axis=1)
 
 
 
-#----------------
+#-------------------
 ## Some plots of EWS
-#----------------
+#------------------
 
 
 ## Smax
@@ -299,6 +299,11 @@ g1=sns.relplot(data=df_plot, x='Dilution rate', y='AIC hopf', kind='line', hue='
 # Confidence intervals of AIC Hopf
 g2=sns.relplot(data=df_plot, x='Dilution rate', y='AIC hopf',kind='line')
 
+# Plot variance
+# All AIC Hopf samples
+g1=sns.relplot(data=df_plot, x='Dilution rate', y='Variance', kind='line', hue='Sample')
+# Confidence intervals of AIC Hopf
+g2=sns.relplot(data=df_plot, x='Dilution rate', y='Variance',kind='line', ci=99)
 
 
 

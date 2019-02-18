@@ -28,7 +28,7 @@ from ews_compute import ews_compute
 #–-----------------------
 
 # EWS computation parmaeters
-band_width = 20 # band width of Gaussian smoothing (given as number of days)
+span = 80 # span for Lowess filtering
 ham_length = 40 # length of Hamming window
 ham_offset = 0.5 # offset of Hamming windows
 w_cutoff = 0.8 # cutoff of higher frequencies
@@ -104,8 +104,7 @@ for species in ['Chlorella','Brachionus']:
         ews_dic = ews_compute(series,
                              roll_window = 1,
                              smooth = 'Lowess',
-                             span = 80,
-                             band_width = band_width,
+                             span = span,
                              ews = ews,
                              lag_times = lag_times,
                              ham_length = ham_length,
