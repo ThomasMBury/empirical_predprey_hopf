@@ -1,0 +1,5 @@
+pandas>=0.24
+numpy>=1.15
+arch>=4.7
+lmfit>=0.9
+ewstools

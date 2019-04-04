@@ -19,22 +19,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# Import EWS function
-import sys
-sys.path.append('../../early_warnings')
-from ews_compute import ews_compute
-
-# Import bootstrap module
-sys.path.append('../../ews_bootstrap')
-from roll_bootstrap import roll_bootstrap, mean_ci
-
-
-
+# Import ewstools
+from ewstools import ewstools
 
 
 
 # Name of directory within data_export
-dir_name = 'bootstrap_block40_ham40_sweep'
+dir_name = 'bootstrap_test'
 
 if not os.path.exists('../data_export/'+dir_name):
     os.makedirs('../data_export/'+dir_name)
@@ -46,7 +37,7 @@ if not os.path.exists('../data_export/'+dir_name):
 
 # EWS computation parameters
 span = 80 # span used for Loess filtering of time-series (number of days)
-ham_length = 40 # length of Hamming window
+ham_length = 80 # length of Hamming window
 ham_offset = 0.5 # offset of Hamming windows
 w_cutoff = 1 # cutoff of higher frequencies
 ews = ['var','ac','smax','aic'] # EWS to compute
@@ -57,7 +48,7 @@ sweep = False # whether to sweep over initialisation parameters during AIC fitti
 # Bootstrapping parameters
 block_size = 40 # size of blocks used to resample time-series
 bs_type = 'Circular' # type of bootstrapping
-n_samples = 100 # number of bootstrapping samples to take
+n_samples = 2 # number of bootstrapping samples to take
 
 
 
@@ -108,7 +99,7 @@ for d in deltaVals:
     series_lengths.loc[d] = len(raw.loc[d])
     
 # Only consider the delta values for which the corresponding trajecotories have over 25 data points
-deltaValsFilt = series_lengths[ series_lengths > 25 ].index
+deltaValsFilt = series_lengths[ series_lengths > 1 ].index
 
        
 
@@ -135,7 +126,7 @@ for d in deltaValsFilt:
         series = raw_traj.loc[d][species]
         
         # Compute bootstrapped series   
-        df_samples_temp = roll_bootstrap(series,
+        df_samples_temp = ewstools.roll_bootstrap(series,
                            span = span,
                            roll_window = 1,
                            n_samples = n_samples,
@@ -197,7 +188,7 @@ for d in deltaValsFilt:
             # Compute EWS of sample series
             series_temp = df_samples.loc[(d, species, sample, ),'x']
             
-            ews_dic = ews_compute(series_temp,
+            ews_dic = ewstools.ews_compute(series_temp,
                               roll_window = 1, 
                               smooth = 'None',
                               ews = ews,
@@ -266,7 +257,7 @@ list_intervals = []
 for i in range(len(ews_export)):
     
     # Compute mean, and confidence intervals
-    series_intervals = df_ews_boot[ews_export[i]].groupby(['Dilution rate','Species']).apply(mean_ci, alpha=0.95)
+    series_intervals = df_ews_boot[ews_export[i]].groupby(['Dilution rate','Species']).apply(ewstools.mean_ci, alpha=0.95)
     
     # Add to the list
     list_intervals.append(series_intervals)

@@ -15,11 +15,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Import EWS function
-import sys
-sys.path.append('../../early_warnings')
-from ews_compute import ews_compute
 
+# Import ewstools
+from ewstools import ewstools
 
 
 
@@ -101,7 +99,7 @@ for species in ['Chlorella','Brachionus']:
     for d in deltaValsFilt:
         series = raw.loc[d,species]
         # plug series into ews_compute - no rolling window (rw=1)
-        ews_dic = ews_compute(series,
+        ews_dic = ewstools.ews_compute(series,
                              roll_window = 1,
                              smooth = 'Lowess',
                              span = span,

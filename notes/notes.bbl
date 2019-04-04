@@ -1,0 +1,19 @@
+\begin{thebibliography}{1}
+
+\bibitem{fussmann00}
+Gregor~F Fussmann, Stephen~P Ellner, Kyle~W Shertzer, and Nelson~G Hairston~Jr.
+\newblock Crossing the hopf bifurcation in a live predator-prey system.
+\newblock {\em Science}, 290(5495):1358--1360, 2000.
+
+\bibitem{ermentrout02}
+Bard Ermentrout.
+\newblock {\em Simulating, analyzing, and animating dynamical systems: a guide
+  to XPPAUT for researchers and students}, volume~14.
+\newblock Siam, 2002.
+
+\bibitem{box15}
+George~EP Box, Gwilym~M Jenkins, Gregory~C Reinsel, and Greta~M Ljung.
+\newblock {\em Time series analysis: forecasting and control}.
+\newblock John Wiley \& Sons, 2015.
+
+\end{thebibliography}
