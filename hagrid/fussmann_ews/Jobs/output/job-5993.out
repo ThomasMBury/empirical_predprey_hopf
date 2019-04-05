@@ -1,0 +1,11 @@
+Job 5993 released
+Install python modules
+Collect parameters from terminal
+Traceback (most recent call last):
+  File "../../script_fussmann_ews.py", line 31, in <module>
+    span_in = float(sys.argv[1])
+NameError: name 'sys' is not defined
+
+real	0m3.762s
+user	0m1.077s
+sys	0m0.355s

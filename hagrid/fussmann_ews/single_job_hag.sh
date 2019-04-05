@@ -23,8 +23,7 @@ echo Install python modules
 mkdir -p Jobs/job-$SLURM_JOB_ID
 cd Jobs/job-$SLURM_JOB_ID
 
-time python3 ../../script_fold_gen.py `cat ../../par_table.txt | head -n $1 | tail -n 1`
-time python3 ../../script_flip_gen.py `cat ../../par_table.txt | head -n $1 | tail -n 1`
+time python3 ../../script_fussmann_ews.py `cat ../../par_table.txt | head -n $1 | tail -n 1`
 
 # Add parameters to a text file
 cat ../../par_table.txt | head -n 1 | tail -n 1 >> pars.txt

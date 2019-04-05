@@ -4,7 +4,7 @@ mkdir -p Jobs
 mkdir -p Jobs/output
 
 
-. par_table_generator.sh
+. par_table_gen.sh
 
 MAX=`cat par_table.txt | wc -l`
 

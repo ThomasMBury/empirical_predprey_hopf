@@ -17,6 +17,8 @@ Takes parameters in from the command line
 import numpy as np
 import pandas as pd
 import os
+import sys
+
 
 # Import ewstools
 from ewstools import ewstools
@@ -43,6 +45,7 @@ span = %.2f
 rw = %.2f
 ham_length = %d
 ham_offset = %.2f
+w_cutoff = %.2f
 sweep = %s
 block_size = %d
 bs_type = %s
@@ -79,7 +82,7 @@ n_samples = n_samples_in # number of bootstrapping samples to take
 #-------------------
 
 # Import raw data
-raw = pd.read_excel('Data/raw_fussmann_2000.xls',header=[1])
+raw = pd.read_excel('../../Data/raw_fussmann_2000.xls',header=[1])
 
 # Round delta column to 2d.p
 raw['meandelta'] = raw['meandelta'].apply(lambda x: round(x,2))
@@ -105,9 +108,9 @@ for d in deltaVals:
 ## Index dataframe by Delta and Time
 raw.set_index(['Delta','Time'], inplace=True)            
 
-# Export trajectories as a csv file
 raw_traj = raw[['Chlorella','Brachionus']]
-raw_traj.to_csv("../data_export/series_data.csv", index_label=['Delta','Time'])               
+# # Export trajectories as a csv file
+# raw_traj.to_csv("series_data.csv", index_label=['Delta','Time'])               
                
                
 # Compute number of data points for each value of delta
@@ -299,6 +302,7 @@ df_intervals.to_csv('ews_intervals.csv')
 
 # Export empirical pspec data for plotting in MMA
 df_pspec_boot.to_csv('pspec.csv')
+
 
 print('Data exported')
 

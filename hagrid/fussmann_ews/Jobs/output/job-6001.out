@@ -1,0 +1,10 @@
+Job 6001 released
+Install python modules
+  File "../../script_fussmann_ews.py", line 304
+    df_pspec_boot.('pspec.csv')
+                  ^
+SyntaxError: invalid syntax
+
+real	0m0.160s
+user	0m0.138s
+sys	0m0.014s

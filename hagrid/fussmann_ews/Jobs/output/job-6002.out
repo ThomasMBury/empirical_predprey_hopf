@@ -1,0 +1,24 @@
+Job 6002 released
+Install python modules
+Collect parameters from terminal
+
+Running fussmann_ews script with parameters: 
+span = 0.50
+rw = 0.40
+ham_length = 40
+ham_offset = 0.50
+w_cutoff = 1.00
+sweep = False
+block_size = 20
+bs_type = Stationary
+n_samples = 2
+
+
+Traceback (most recent call last):
+  File "../../script_fussmann_ews.py", line 147, in <module>
+    series = raw_traj.loc[d][species]
+NameError: name 'raw_traj' is not defined
+
+real	0m2.756s
+user	0m1.360s
+sys	0m0.390s

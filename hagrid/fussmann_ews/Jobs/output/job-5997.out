@@ -1,0 +1,41 @@
+Job 5997 released
+Install python modules
+Collect parameters from terminal
+
+Running fussmann_ews script with parameters: 
+span = 0.50
+rw = 0.40
+ham_length = 40
+ham_offset = 0.50
+w_cutoff = 1.00
+sweep = False
+block_size = 20
+bs_type = Stationary
+n_samples = 2
+
+
+Traceback (most recent call last):
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/io/excel.py", line 391, in __init__
+    import xlrd
+ModuleNotFoundError: No module named 'xlrd'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "../../script_fussmann_ews.py", line 85, in <module>
+    raw = pd.read_excel('Data/raw_fussmann_2000.xls',header=[1])
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/util/_decorators.py", line 188, in wrapper
+    return func(*args, **kwargs)
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/util/_decorators.py", line 188, in wrapper
+    return func(*args, **kwargs)
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/io/excel.py", line 350, in read_excel
+    io = ExcelFile(io, engine=engine)
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/io/excel.py", line 653, in __init__
+    self._reader = self._engines[engine](self._io)
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/io/excel.py", line 393, in __init__
+    raise ImportError(err_msg)
+ImportError: Install xlrd >= 1.0.0 for Excel support
+
+real	0m3.451s
+user	0m1.089s
+sys	0m0.356s

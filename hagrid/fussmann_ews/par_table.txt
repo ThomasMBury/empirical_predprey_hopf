@@ -1,25 +1,17 @@
-tmax seed sigma span rw ham_length ham_offset sweep block_size bs_type n_samples
-500 1 0.02 0.5 0.4 40 0.5 true 20 Stationary 100
-500 1 0.02 0.5 0.4 80 0.5 true 20 Stationary 100
-500 1 0.04 0.5 0.4 40 0.5 true 20 Stationary 100
-500 1 0.04 0.5 0.4 80 0.5 true 20 Stationary 100
-500 2 0.02 0.5 0.4 40 0.5 true 20 Stationary 100
-500 2 0.02 0.5 0.4 80 0.5 true 20 Stationary 100
-500 2 0.04 0.5 0.4 40 0.5 true 20 Stationary 100
-500 2 0.04 0.5 0.4 80 0.5 true 20 Stationary 100
-500 3 0.02 0.5 0.4 40 0.5 true 20 Stationary 100
-500 3 0.02 0.5 0.4 80 0.5 true 20 Stationary 100
-500 3 0.04 0.5 0.4 40 0.5 true 20 Stationary 100
-500 3 0.04 0.5 0.4 80 0.5 true 20 Stationary 100
-1000 1 0.02 0.5 0.4 40 0.5 true 20 Stationary 100
-1000 1 0.02 0.5 0.4 80 0.5 true 20 Stationary 100
-1000 1 0.04 0.5 0.4 40 0.5 true 20 Stationary 100
-1000 1 0.04 0.5 0.4 80 0.5 true 20 Stationary 100
-1000 2 0.02 0.5 0.4 40 0.5 true 20 Stationary 100
-1000 2 0.02 0.5 0.4 80 0.5 true 20 Stationary 100
-1000 2 0.04 0.5 0.4 40 0.5 true 20 Stationary 100
-1000 2 0.04 0.5 0.4 80 0.5 true 20 Stationary 100
-1000 3 0.02 0.5 0.4 40 0.5 true 20 Stationary 100
-1000 3 0.02 0.5 0.4 80 0.5 true 20 Stationary 100
-1000 3 0.04 0.5 0.4 40 0.5 true 20 Stationary 100
-1000 3 0.04 0.5 0.4 80 0.5 true 20 Stationary 100
+span rw ham_length ham_offset w_cutoff sweep block_size bs_type n_samples
+80 1 40 0.5 0.8 true 20 Stationary 100
+80 1 40 0.5 0.8 true 20 Circular 100
+80 1 40 0.5 0.8 true 40 Stationary 100
+80 1 40 0.5 0.8 true 40 Circular 100
+80 1 40 0.5 1 true 20 Stationary 100
+80 1 40 0.5 1 true 20 Circular 100
+80 1 40 0.5 1 true 40 Stationary 100
+80 1 40 0.5 1 true 40 Circular 100
+80 1 80 0.5 0.8 true 20 Stationary 100
+80 1 80 0.5 0.8 true 20 Circular 100
+80 1 80 0.5 0.8 true 40 Stationary 100
+80 1 80 0.5 0.8 true 40 Circular 100
+80 1 80 0.5 1 true 20 Stationary 100
+80 1 80 0.5 1 true 20 Circular 100
+80 1 80 0.5 1 true 40 Stationary 100
+80 1 80 0.5 1 true 40 Circular 100

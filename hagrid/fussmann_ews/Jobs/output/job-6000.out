@@ -1,0 +1,30 @@
+Job 6000 released
+Install python modules
+Collect parameters from terminal
+
+Running fussmann_ews script with parameters: 
+span = 0.50
+rw = 0.40
+ham_length = 40
+ham_offset = 0.50
+w_cutoff = 1.00
+sweep = False
+block_size = 20
+bs_type = Stationary
+n_samples = 2
+
+
+Traceback (most recent call last):
+  File "../../script_fussmann_ews.py", line 113, in <module>
+    raw_traj.to_csv("../data_export/series_data.csv", index_label=['Delta','Time'])               
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/core/generic.py", line 3020, in to_csv
+    formatter.save()
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/io/formats/csvs.py", line 157, in save
+    compression=self.compression)
+  File "/work/tbury/.local/lib/python3.6/site-packages/pandas/io/common.py", line 424, in _get_handle
+    f = open(path_or_buf, mode, encoding=encoding, newline="")
+FileNotFoundError: [Errno 2] No such file or directory: '../data_export/series_data.csv'
+
+real	0m2.894s
+user	0m1.328s
+sys	0m0.415s

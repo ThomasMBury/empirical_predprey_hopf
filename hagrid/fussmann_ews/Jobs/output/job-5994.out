@@ -1,0 +1,11 @@
+Job 5994 released
+Install python modules
+Collect parameters from terminal
+Traceback (most recent call last):
+  File "../../script_fussmann_ews.py", line 53, in <module>
+    % (span_in, rw_in, ham_length_in, ham_offset_in, w_cutoff_in, sweep_in, block_size_in, bs_type_in, n_samples_in)
+TypeError: %d format: a number is required, not str
+
+real	0m2.331s
+user	0m1.009s
+sys	0m0.385s
