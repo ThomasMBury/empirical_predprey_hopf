@@ -1,0 +1,43 @@
+Job 6544 released
+Install python modules
+Collect parameters from terminal
+
+Running fussmann_ews script with parameters: 
+span = 80.00
+rw = 1.00
+ham_length = 80
+ham_offset = 0.50
+w_cutoff = 1.00
+sweep = True
+block_size = 20
+bs_type = Circular
+n_samples = 100
+
+
+Bootstrap samples for d = 0.04 complete
+Bootstrap samples for d = 0.07 complete
+Bootstrap samples for d = 0.12 complete
+Bootstrap samples for d = 0.32 complete
+Bootstrap samples for d = 0.64 complete
+Bootstrap samples for d = 0.67 complete
+Bootstrap samples for d = 0.69 complete
+Bootstrap samples for d = 0.95 complete
+Bootstrap samples for d = 1.17 complete
+Bootstrap samples for d = 1.24 complete
+Bootstrap samples for d = 1.37 complete
+EWS for d = 0.04 complete
+EWS for d = 0.07 complete
+EWS for d = 0.12 complete
+EWS for d = 0.32 complete
+EWS for d = 0.64 complete
+EWS for d = 0.67 complete
+EWS for d = 0.69 complete
+EWS for d = 0.95 complete
+EWS for d = 1.17 complete
+EWS for d = 1.24 complete
+EWS for d = 1.37 complete
+Data exported
+
+real	207m58.261s
+user	207m46.391s
+sys	0m4.276s

@@ -120,9 +120,7 @@ for d in deltaVals:
     series_lengths.loc[d] = len(raw.loc[d])
     
 # Only consider the delta values for which the corresponding trajecotories have over 25 data points
-deltaValsFilt = series_lengths[ series_lengths > 1 ].index
-
-       
+deltaValsFilt = series_lengths[ series_lengths > 25 ].index
 
 
 

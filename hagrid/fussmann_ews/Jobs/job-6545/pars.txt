@@ -1,0 +1,2 @@
+span rw ham_length ham_offset w_cutoff sweep block_size bs_type n_samples
+80 1 80 0.5 1 true 40 Stationary 100
