@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      7063,        194]
-NotebookOptionsPosition[      6075,        163]
-NotebookOutlinePosition[      6434,        179]
-CellTagsIndexPosition[      6391,        176]
+NotebookDataLength[      7185,        195]
+NotebookOptionsPosition[      6196,        164]
+NotebookOutlinePosition[      6556,        180]
+CellTagsIndexPosition[      6513,        177]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -44,12 +44,12 @@ Documents/com~apple~CloudDocs/Research/critical_transitions_18/hopf_fussmann_\
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"jobMin", "=", "6173"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"jobMin", "=", "6531"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"jobMax", "=", "6188"}], ";"}]}], "Input",
+  RowBox[{"jobMax", "=", "6546"}], ";"}]}], "Input",
  CellChangeTimes->{{3.7633780121816483`*^9, 3.76337802851788*^9}, {
-  3.7634696579474897`*^9, 
-  3.763469664969228*^9}},ExpressionUUID->"d11353be-8e29-4dab-979c-\
+  3.7634696579474897`*^9, 3.763469664969228*^9}, {3.7636476728272057`*^9, 
+  3.763647678304594*^9}},ExpressionUUID->"d11353be-8e29-4dab-979c-\
 c8a69e11fddd"],
 
 Cell[BoxData[
@@ -98,37 +98,37 @@ Cell[BoxData[
     {"\<\"job_number\"\>", "\<\"span\"\>", "\<\"rw\"\>", \
 "\<\"ham_length\"\>", "\<\"ham_offset\"\>", "\<\"w_cutoff\"\>", \
 "\<\"sweep\"\>", "\<\"block_size\"\>", "\<\"bs_type\"\>", "\<\"n_samples\"\>"},
-    {"6173", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6531", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
      "20", "\<\"Stationary\"\>", "100"},
-    {"6174", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6532", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
      "20", "\<\"Circular\"\>", "100"},
-    {"6175", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6533", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
      "40", "\<\"Stationary\"\>", "100"},
-    {"6176", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6534", "80", "1", "40", "0.5`", "0.8`", "\<\"true\"\>", 
      "40", "\<\"Circular\"\>", "100"},
-    {"6177", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
+    {"6535", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
      "20", "\<\"Stationary\"\>", "100"},
-    {"6178", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
+    {"6536", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
      "20", "\<\"Circular\"\>", "100"},
-    {"6179", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
+    {"6537", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
      "40", "\<\"Stationary\"\>", "100"},
-    {"6180", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
+    {"6538", "80", "1", "40", "0.5`", "1", "\<\"true\"\>", 
      "40", "\<\"Circular\"\>", "100"},
-    {"6181", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6539", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
      "20", "\<\"Stationary\"\>", "100"},
-    {"6182", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6540", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
      "20", "\<\"Circular\"\>", "100"},
-    {"6183", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6541", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
      "40", "\<\"Stationary\"\>", "100"},
-    {"6184", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
+    {"6542", "80", "1", "80", "0.5`", "0.8`", "\<\"true\"\>", 
      "40", "\<\"Circular\"\>", "100"},
-    {"6185", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
+    {"6543", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
      "20", "\<\"Stationary\"\>", "100"},
-    {"6186", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
+    {"6544", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
      "20", "\<\"Circular\"\>", "100"},
-    {"6187", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
+    {"6545", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
      "40", "\<\"Stationary\"\>", "100"},
-    {"6188", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
+    {"6546", "80", "1", "80", "0.5`", "1", "\<\"true\"\>", 
      "40", "\<\"Circular\"\>", "100"}
    },
    GridBoxAlignment->{
@@ -143,26 +143,27 @@ Cell[BoxData[
        Offset[0.2]}, "RowsIndexed" -> {}}],
   Function[BoxForm`e$, 
    TableForm[BoxForm`e$]]]], "Output",
- CellChangeTimes->{3.763378347819406*^9, 
-  3.763469680287897*^9},ExpressionUUID->"696d6726-4d99-47fd-b6e2-\
-e64f9b487119"]
+ CellChangeTimes->{3.763378347819406*^9, 3.763469680287897*^9, 
+  3.763647686268421*^9},ExpressionUUID->"66857a71-9ed1-49df-a6f9-\
+145816e5e6fb"]
 }, Open  ]],
 
 Cell[BoxData[
  RowBox[{
   RowBox[{"Export", "[", 
    RowBox[{
-   "\"\<../../../figures/ews_bootstrap/hagrid_sess1/pars.png\>\"", ",", 
+   "\"\<../../../figures/ews_bootstrap/hagrid_sess2/pars.png\>\"", ",", 
     RowBox[{"parTable", "//", "TableForm"}]}], "]"}], ";"}]], "Input",
  CellChangeTimes->{{3.763378374211154*^9, 3.763378376157877*^9}, {
   3.763378408918116*^9, 3.763378414060843*^9}, {3.76337849276015*^9, 
-  3.763378504624193*^9}, {3.763469696812479*^9, 
-  3.7634697395707073`*^9}},ExpressionUUID->"2cb98e37-38a0-421c-a87b-\
+  3.763378504624193*^9}, {3.763469696812479*^9, 3.7634697395707073`*^9}, {
+  3.7636476833055468`*^9, 
+  3.763647683408188*^9}},ExpressionUUID->"2cb98e37-38a0-421c-a87b-\
 276774276eb7"]
 }, Open  ]]
 },
-WindowSize->{808, 610},
-WindowMargins->{{Automatic, -1390}, {-45, Automatic}},
+WindowSize->{1013, 786},
+WindowMargins->{{Automatic, -1143}, {Automatic, -31}},
 FrontEndVersion->"11.1 for Mac OS X x86 (32-bit, 64-bit Kernel) (April 27, \
 2017)",
 StyleDefinitions->"Default.nb"
@@ -183,17 +184,17 @@ Cell[580, 22, 188, 3, 65, "Chapter", "ExpressionUUID" -> \
 "a289d1b9-0a6b-4a44-acce-003b215351f4"],
 Cell[771, 27, 577, 15, 117, "Input", "ExpressionUUID" -> \
 "84b40b44-aeeb-4f67-bfc9-0a4fd4629773"],
-Cell[1351, 44, 331, 8, 54, "Input", "ExpressionUUID" -> \
+Cell[1351, 44, 379, 8, 54, "Input", "ExpressionUUID" -> \
 "d11353be-8e29-4dab-979c-c8a69e11fddd"],
-Cell[1685, 54, 1209, 31, 138, "Input", "ExpressionUUID" -> \
+Cell[1733, 54, 1209, 31, 117, "Input", "ExpressionUUID" -> \
 "680ac2dd-4683-4262-86e6-9691224c22f8"],
 Cell[CellGroupData[{
-Cell[2919, 89, 191, 4, 32, "Input", "ExpressionUUID" -> \
+Cell[2967, 89, 191, 4, 32, "Input", "ExpressionUUID" -> \
 "b5184f16-0ad2-4a0d-984a-04810970487a"],
-Cell[3113, 95, 2455, 52, 330, "Output", "ExpressionUUID" -> \
-"696d6726-4d99-47fd-b6e2-e64f9b487119"]
+Cell[3161, 95, 2477, 52, 330, "Output", "ExpressionUUID" -> \
+"66857a71-9ed1-49df-a6f9-145816e5e6fb"]
 }, Open  ]],
-Cell[5583, 150, 476, 10, 32, "Input", "ExpressionUUID" -> \
+Cell[5653, 150, 527, 11, 32, "Input", "ExpressionUUID" -> \
 "2cb98e37-38a0-421c-a87b-276774276eb7"]
 }, Open  ]]
 }
