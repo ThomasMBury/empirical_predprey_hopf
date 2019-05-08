@@ -298,7 +298,7 @@ df_ews_boot[ews_export].to_csv('ews.csv')
 # EWS confidnece intervals over samples
 df_intervals.to_csv('ews_intervals.csv')
 
-# Export empirical pspec data for plotting in MMA
+# Export pspec data for plotting in MMA
 df_pspec_boot.to_csv('pspec.csv')
 
 
