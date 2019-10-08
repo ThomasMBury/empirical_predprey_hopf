@@ -161,7 +161,6 @@ list_traj_append = []
 print('\nBegin simulations \n')
 for j in range(numSims):
     
-    
     # Create brownian increments (s.d. sqrt(dt))
     dW_n_burn = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = int(tburn/dt))
     dW_n = np.random.normal(loc=0, scale=sigma_n*np.sqrt(dt), size = len(t)) 

@@ -48,7 +48,7 @@ sweep = False # whether to sweep over initialisation parameters during AIC fitti
 # Bootstrapping parameters
 block_size = 40 # size of blocks used to resample time-series
 bs_type = 'Circular' # type of bootstrapping
-n_samples = 2 # number of bootstrapping samples to take
+n_samples = 100 # number of bootstrapping samples to take
 
 
 

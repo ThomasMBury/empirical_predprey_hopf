@@ -27,7 +27,7 @@ c(0)=4
 r(0)=1
 b(0)=1
 
-@ xp=t,yp=c,xlo=0,xhi=10,ylo=0,yhi=100,a bell=0
+@ xp=t,yp=c,xlo=0,xhi=10,ylo=0,yhi=100,bell=0
 @ total=100, dt=0.01, maxstor=2000000,bounds=1000000
 @ ntst=150, npr=500, nmax=20000, ds=0.01, dsmin=0.001, dsmax=0.02, ncol=5
 @ parmin=0, parmax=2, epsl=0.000001, epsu=0.000001, epss=0.000001 
