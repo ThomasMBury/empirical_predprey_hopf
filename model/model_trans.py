@@ -20,11 +20,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import ewstools
 
-# EWS module
-import sys
-sys.path.append('../../early_warnings')
-from ews_compute import ews_compute
 
 
 #----------------------
@@ -235,7 +232,7 @@ for i in range(numSims):
     # loop through sate variable
     for var in ['Chlorella', 'Brachionus']:
         
-        ews_dic = ews_compute(df_traj_filt.loc[i+1][var], 
+        ews_dic = ewstools.core.ews_compute(df_traj_filt.loc[i+1][var], 
                           roll_window = rw, 
                           band_width = bw,
                           lag_times = lags, 
