@@ -38,7 +38,7 @@ def apply_inplace(df, field, fun):
 #–----------------------
 
 # Name of directory within data_export
-dir_name = 'ews_1'
+dir_name = 'ews_trans_lowhopf'
 
 if not os.path.exists('data_export/'+dir_name):
     os.makedirs('data_export/'+dir_name)
@@ -52,21 +52,21 @@ if not os.path.exists('data_export/'+dir_name):
 # Simulation parameters
 dt = 0.01
 t0 = 0
-tmax = 200
+tmax = 400
 tburn = 100 # burn-in period
 numSims = 2
 seed = 1 # random number generation seed
-dl = 0.08 # min value of dilution rate (control)
-dh = 0.18 # max value of dilution rate (control)
-dbif = 0.15 # bifurcation value
+dl = 0.1 # min value of dilution rate (control)
+dh = 0.16 # max value of dilution rate (control)
+dbif = 0.151 # bifurcation value
 
 
 # EWS parameters
 dt2 = 1 # spacing between time-series for EWS computation
-rw = 0.25 # rolling window
-bw = 0.1 # bandwidth
-lags = [1,2,4] # autocorrelation lag times
-ews = ['var','ac','sd','cv','skew','kurt','smax','aic','cf'] # EWS to compute
+rw = 0.4 # rolling window
+span = 0.2 # bandwidth
+lags = [1,2,10] # autocorrelation lag times
+ews = ['var','ac','sd','cv','skew','kurt','smax','aic'] # EWS to compute
 ham_length = 40 # number of data points in Hamming window
 ham_offset = 0.5 # proportion of Hamming window to offset by upon each iteration
 pspec_roll_offset = 10 # offset for rolling window when doing spectrum metrics
@@ -117,9 +117,9 @@ params = [ni,bc,kc,bb,kb,epsilon,m,lamda]
 
 # Noise parameters
 sigma_n = 0 # amplitude for N
-sigma_c = 0.02 # amplitude for Chlorella
+sigma_c = 0.1 # amplitude for Chlorella
 sigma_r = 0 # amplitude for R
-sigma_b = 0.02 # amplitude for Brachionus
+sigma_b = 0.1 # amplitude for Brachionus
 
 # Initial conditions
 n0 = 2
@@ -225,6 +225,7 @@ df_traj_filt = df_traj.loc[::int(dt2/dt)]
 # We will concatenate them at the end
 appended_ews = []
 appended_pspec = []
+appended_ktau = []
 
 # loop through realisation number
 print('\nBegin EWS computation\n')
@@ -233,8 +234,9 @@ for i in range(numSims):
     for var in ['Chlorella', 'Brachionus']:
         
         ews_dic = ewstools.core.ews_compute(df_traj_filt.loc[i+1][var], 
-                          roll_window = rw, 
-                          band_width = bw,
+                          roll_window = rw,
+                          smooth='Lowess',
+                          span=span,
                           lag_times = lags, 
                           ews = ews,
                           ham_length = ham_length,
@@ -246,6 +248,10 @@ for i in range(numSims):
         df_ews_temp = ews_dic['EWS metrics']
         # The DataFrame of power spectra
         df_pspec_temp = ews_dic['Power spectrum']
+        # The DataFrame of kendall tau values
+        df_ktau_temp = ews_dic['Kendall tau']
+        
+        
         
         # Include a column in the DataFrames for realisation number and variable
         df_ews_temp['Realisation number'] = i+1
@@ -253,10 +259,15 @@ for i in range(numSims):
         
         df_pspec_temp['Realisation number'] = i+1
         df_pspec_temp['Variable'] = var
+        
+        df_ktau_temp['Realisation number'] = i+1
+        df_ktau_temp['Variable'] = var
                 
         # Add DataFrames to list
         appended_ews.append(df_ews_temp)
         appended_pspec.append(df_pspec_temp)
+        appended_ktau.append(df_ktau_temp)
+        
         
     # Print status every realisation
     if np.remainder(i+1,1)==0:
@@ -267,6 +278,10 @@ for i in range(numSims):
 df_ews = pd.concat(appended_ews).reset_index().set_index(['Realisation number','Variable','Time'])
 # Concatenate power spectrum DataFrames. Index [Realisation number, Variable, Time, Frequency]
 df_pspec = pd.concat(appended_pspec).reset_index().set_index(['Realisation number','Variable','Time','Frequency'])
+# Concatenate kendall tau DataFrames. Index [Realisation number, Variable]
+df_ktau = pd.concat(appended_ktau).reset_index().set_index(['Realisation number','Variable'])
+
+
 
 
 ## Compute ensemble statistics of EWS over all realisations (mean, pm1 s.d.)
@@ -289,9 +304,8 @@ fig1, axes = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(6,6))
 df_ews.loc[plot_num,var][['State variable','Smoothing']].plot(ax=axes[0],
           title='Early warning signals for a single realisation')
 df_ews.loc[plot_num,var]['Variance'].plot(ax=axes[1],legend=True)
-df_ews.loc[plot_num,var][['Lag-1 AC','Lag-2 AC','Lag-4 AC']].plot(ax=axes[1], secondary_y=True,legend=True)
+df_ews.loc[plot_num,var][['Lag-1 AC','Lag-2 AC','Lag-10 AC']].plot(ax=axes[1], secondary_y=True,legend=True)
 df_ews.loc[plot_num,var]['Smax'].dropna().plot(ax=axes[2],legend=True)
-df_ews.loc[plot_num,var]['Coherence factor'].dropna().plot(ax=axes[2], secondary_y=True, legend=True)
 df_ews.loc[plot_num,var][['AIC fold','AIC hopf','AIC null']].dropna().plot(ax=axes[3],legend=True)
 
 
@@ -332,25 +346,21 @@ plot_pspec_x = plot_pspec_grid(t_display,1,'Chlorella')
 ### Export data / figures
 ##-----------------------------------
 #
-## Export power spectrum evolution (grid plot)
-#plot_pspec_x.savefig('figures/pspec_evol_x.png', dpi=200)
-#plot_pspec_y.savefig('figures/pspec_evol_y.png', dpi=200)
-#
-### Export the first 5 realisations to see individual behaviour
-## EWS DataFrame (includes trajectories)
-#df_ews.loc[:5].to_csv('data_export/'+dir_name+'/ews_singles.csv')
-## Power spectrum DataFrame (only empirical values)
-#df_pspec.loc[:5,'Empirical'].dropna().to_csv('data_export/'+dir_name+'/pspecs.csv',
-#            header=True)
-#
-## Export ensemble statistics
-#df_ews_means.to_csv('data_export/'+dir_name+'/ews_ensemble_mean.csv')
-#df_ews_deviations.to_csv('data_export/'+dir_name+'/ews_ensemble_std.csv')
 
 
+## Export the first 5 realisations to see individual behaviour
+# EWS DataFrame (includes trajectories)
+df_ews.loc[:2].to_csv('data_export/'+dir_name+'/ews_singles.csv')
+# Power spectrum DataFrame (only empirical values)
+df_pspec.loc[:2,'Empirical'].dropna().to_csv('data_export/'+dir_name+'/pspecs.csv',
+            header=True)
+df_ktau.to_csv('data_export/'+dir_name+'/ktau.csv')
 
 
-
-
+# AIC values at time t=299
+df_temp = df_ews.reset_index()
+df_aic_t300 = df_temp[df_temp['Time']==319][['Realisation number','AIC fold','AIC hopf','AIC null']]
+df_aic_t300.set_index('Realisation number', inplace=True)
+df_aic_t300.to_csv('data_export/'+dir_name+'/aic_t300.csv')
 
 
