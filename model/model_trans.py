@@ -54,7 +54,7 @@ dt = 0.01
 t0 = 0
 tmax = 400
 tburn = 100 # burn-in period
-numSims = 2
+numSims = 10
 seed = 1 # random number generation seed
 dl = 0.1 # min value of dilution rate (control)
 dh = 0.16 # max value of dilution rate (control)
@@ -116,10 +116,11 @@ params = [ni,bc,kc,bb,kb,epsilon,m,lamda]
 
 
 # Noise parameters
-sigma_n = 0 # amplitude for N
-sigma_c = 0.1 # amplitude for Chlorella
-sigma_r = 0 # amplitude for R
-sigma_b = 0.1 # amplitude for Brachionus
+sigma = 0.01
+sigma_n = sigma # amplitude for N
+sigma_c = sigma # amplitude for Chlorella
+sigma_r = sigma # amplitude for R
+sigma_b = sigma # amplitude for Brachionus
 
 # Initial conditions
 n0 = 2
@@ -182,14 +183,16 @@ for j in range(numSims):
     # Run burn-in period on x0
     for i in range(int(tburn/dt)):        
         
-        x0 = x0 + de_fun(x0, dl, params)*dt + dW_burn[i]
+        x0 = x0 + de_fun(x0, dl, params)*dt + np.dot(np.sqrt(x0),dW_burn[i])
+        # make sure that state variable remains >= 0 
+        x0 = [np.max([k,0]) for k in x0]
         
     # Initial condition post burn-in period
     x[0]=x0
     
     # Run simulation
     for i in range(len(t)-1):
-        x[i+1] = x[i] + de_fun(x[i], d.iloc[i], params)*dt + dW[i]
+        x[i+1] = x[i] + de_fun(x[i], d.iloc[i], params)*dt + np.dot(np.sqrt(x[i]),dW[i])
         # make sure that state variable remains >= 0 
         x[i+1] = [np.max([k,0]) for k in x[i+1]]
             
@@ -338,8 +341,10 @@ def plot_pspec_grid(tVals, plot_num, var):
 #  Choose time values at which to display power spectrum
 t_display = df_pspec.index.levels[2][::1].values
 
-plot_pspec_x = plot_pspec_grid(t_display,1,'Chlorella')
+plot_pspec_x = plot_pspec_grid(t_display,2,'Chlorella')
 #plot_pspec_y = plot_pspec_grid(t_display,1,'y')
+
+
 
 
 ##------------------------------------
@@ -359,7 +364,7 @@ df_ktau.to_csv('data_export/'+dir_name+'/ktau.csv')
 
 # AIC values at time t=299
 df_temp = df_ews.reset_index()
-df_aic_t300 = df_temp[df_temp['Time']==319][['Realisation number','AIC fold','AIC hopf','AIC null']]
+df_aic_t300 = df_temp[(df_temp['Time']==319) & (df_temp['Variable']=='Chlorella')][['Realisation number','AIC fold','AIC hopf','AIC null']]
 df_aic_t300.set_index('Realisation number', inplace=True)
 df_aic_t300.to_csv('data_export/'+dir_name+'/aic_t300.csv')
 
